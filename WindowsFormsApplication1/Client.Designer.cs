@@ -1,4 +1,6 @@
-﻿namespace WindowsFormsApplication1
+﻿// COMMENT 1//
+
+namespace WindowsFormsApplication1
 {
     partial class Client
     {

@@ -12,7 +12,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Net;
 
-
+//server
 namespace Server_Application
 {
     public partial class Server : Form
