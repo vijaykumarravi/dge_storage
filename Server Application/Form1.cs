@@ -45,7 +45,20 @@ namespace Server_Application
         public void StartListening()
         {
             byte[] bytes = new Byte[8096];
-            IPEndPoint ipEnd = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 5050);
+            /*IPHostEntry host;
+            string localIP;
+            
+            foreach (IPAddress ip in host.AddressList)
+            {
+                if (ip.AddressFamily == AddressFamily.InterNetwork)
+                {
+                    localIP = ip.ToString();
+                }
+            }*/
+            WebClient webClient = new WebClient();
+            string IP = webClient.DownloadString("http://myip.ozymo.com/");
+            
+            IPEndPoint ipEnd = new IPEndPoint(IPAddress.Parse(IP), 5050);
             Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
