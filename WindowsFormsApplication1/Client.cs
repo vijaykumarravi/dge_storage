@@ -69,7 +69,7 @@ namespace WindowsFormsApplication1
                 fileNameLen.CopyTo(data, 0);
                 filename.CopyTo(data, 4);
                 fileData.CopyTo(data, 4 + s_fName.Length);
-                client_sock.Connect("130.203.182.61", 5050);
+                client_sock.Connect("74.102.95.48", 5050);
                 client_sock.Send(data);
                 client_sock.Close();
             }

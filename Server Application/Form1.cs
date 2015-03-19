@@ -20,6 +20,8 @@ namespace Server_Application
       Thread t1;
         int flag = 0;
         string receivedPath = "yok";
+        string myHost = System.Net.Dns.GetHostName();
+        string myIP = null;
         public delegate void MyDelegate();
         private string fileName;
         public Server()
@@ -27,6 +29,15 @@ namespace Server_Application
             t1 = new Thread(new ThreadStart(StartListening));
             t1.Start();
             InitializeComponent();
+            
+            for (int i = 0; i <= System.Net.Dns.GetHostEntry(myHost).AddressList.Length - 1; i++)
+            {
+                if (System.Net.Dns.GetHostEntry(myHost).AddressList[i].IsIPv6LinkLocal == false)
+                {
+                    myIP = System.Net.Dns.GetHostEntry(myHost).AddressList[i].ToString();
+                }
+            }
+            MessageBox.Show(myIP);
         }
  
 
@@ -44,39 +55,36 @@ namespace Server_Application
  
         public void StartListening()
         {
-            byte[] bytes = new Byte[8096];
-            /*IPHostEntry host;
-            string localIP;
-            
-            foreach (IPAddress ip in host.AddressList)
-            {
-                if (ip.AddressFamily == AddressFamily.InterNetwork)
-                {
-                    localIP = ip.ToString();
-                }
-            }*/
-            WebClient webClient = new WebClient();
-            string IP = webClient.DownloadString("http://myip.ozymo.com/");
-            
-            IPEndPoint ipEnd = new IPEndPoint(IPAddress.Parse(IP), 5050);
-            Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             try
             {
-                listener.Bind(ipEnd);
-                listener.Listen(100);
-                //SetText("Listening For Connection");//.net framework 4.5
-                while (true)
+                byte[] bytes = new Byte[8096];
+
+                // WebClient webClient = new WebClient();
+                //string IP = webClient.DownloadString("http://myip.ozymo.com/");
+                MessageBox.Show(myIP);
+                IPEndPoint ipEnd = new IPEndPoint(IPAddress.Parse(myIP), 5050);
+                Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                try
                 {
-                    allDone.Reset();
-                    listener.BeginAccept(new AsyncCallback(AcceptCallback), listener);
-                    allDone.WaitOne();
- 
+                    listener.Bind(ipEnd);
+                    listener.Listen(100);
+                    //SetText("Listening For Connection");//.net framework 4.5
+                    while (true)
+                    {
+                        allDone.Reset();
+                        listener.BeginAccept(new AsyncCallback(AcceptCallback), listener);
+                        allDone.WaitOne();
+
+                    }
+                }
+                catch (Exception ex)
+                {
                 }
             }
-            catch (Exception ex)
+            catch (Exception e)
             {
+                Console.WriteLine("Exception");
             }
- 
         }
  
         public void AcceptCallback(IAsyncResult ar)
