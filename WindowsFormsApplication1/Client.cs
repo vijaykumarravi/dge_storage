@@ -18,16 +18,16 @@ namespace WindowsFormsApplication1
         public String fName;
         public String s_fName;
         Socket client_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-           
+
         public Client()
         {
             InitializeComponent();
             OpenFileDialog ofd = new OpenFileDialog();
             StatusStrip statusStrip1 = new StatusStrip();
-            statusStrip1.Text="Select a File";
+            statusStrip1.Text = "Select a File";
             statusStrip1.Refresh();
-            
-          }
+
+        }
 
         private void openFileDialog1_FileOk(object sender, CancelEventArgs e)
         {
@@ -41,15 +41,15 @@ namespace WindowsFormsApplication1
 
         private void button2_Click(object sender, EventArgs e)
         {
-            if(ofd.ShowDialog() == DialogResult.OK)
+            if (ofd.ShowDialog() == DialogResult.OK)
             {
                 fName = ofd.FileName;
                 textBox1.Text = ofd.SafeFileName;
                 s_fName = textBox1.Text;
 
             }
-            
-   
+
+
         }
 
         private void textBox1_TextChanged(object sender, EventArgs e)
@@ -60,19 +60,27 @@ namespace WindowsFormsApplication1
 
         private void button3_Click(object sender, EventArgs e)
         {
-            byte[] filename = Encoding.UTF8.GetBytes(s_fName);
-            byte[] fileData = File.ReadAllBytes(fName);
-            byte[] data = new byte[4 + fName.Length + fileData.Length];
-            byte[] fileNameLen = BitConverter.GetBytes(s_fName.Length);
-            fileNameLen.CopyTo(data, 0);
-            filename.CopyTo(data, 4);
-            fileData.CopyTo(data, 4 + s_fName.Length);
-            client_sock.Connect("127.0.0.1", 5050);
-            client_sock.Send(data);
-            client_sock.Close();
+            try
+            {
+                byte[] filename = Encoding.UTF8.GetBytes(s_fName);
+                byte[] fileData = File.ReadAllBytes(fName);
+                byte[] data = new byte[4 + fName.Length + fileData.Length];
+                byte[] fileNameLen = BitConverter.GetBytes(s_fName.Length);
+                fileNameLen.CopyTo(data, 0);
+                filename.CopyTo(data, 4);
+                fileData.CopyTo(data, 4 + s_fName.Length);
+                client_sock.Connect("130.203.182.61", 5050);
+                client_sock.Send(data);
+                client_sock.Close();
+            }
+
+
+
+            catch (Exception s)
+            {
+                MessageBox.Show("Exception caught Unable to connect to Server");
+            }
+
         }
-
-
-        
     }
 }
