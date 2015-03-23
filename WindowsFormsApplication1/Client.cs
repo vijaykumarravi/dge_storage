@@ -18,7 +18,7 @@ namespace WindowsFormsApplication1
         public String fName;
         public String s_fName;
         Socket client_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-
+        String ip;
         public Client()
         {
             InitializeComponent();
@@ -69,7 +69,7 @@ namespace WindowsFormsApplication1
                 fileNameLen.CopyTo(data, 0);
                 filename.CopyTo(data, 4);
                 fileData.CopyTo(data, 4 + s_fName.Length);
-                client_sock.Connect("74.102.95.48", 5050);
+                client_sock.Connect(ip, 8080);
                 client_sock.Send(data);
                 client_sock.Close();
             }
@@ -80,6 +80,14 @@ namespace WindowsFormsApplication1
             {
                 MessageBox.Show("Exception caught Unable to connect to Server");
             }
+
+        }
+
+        private void button2_Click_1(object sender, EventArgs e)
+        {
+
+            ip = textBox2.Text;
+            MessageBox.Show(ip);
 
         }
     }

@@ -21,7 +21,7 @@ namespace Server_Application
     {
         Thread t1;
         int flag = 0;
-        string receivedPath = "yok";
+        string receivedPath = "nil";
         string myHost = System.Net.Dns.GetHostName();
         string myIP = null;
         public delegate void MyDelegate();
@@ -39,7 +39,7 @@ namespace Server_Application
                     myIP = System.Net.Dns.GetHostEntry(myHost).AddressList[i].ToString();
                 }
             }
-            MessageBox.Show(myIP);
+           // MessageBox.Show(myIP);
         }
 
 
@@ -63,8 +63,8 @@ namespace Server_Application
 
                 // WebClient webClient = new WebClient();
                 //string IP = webClient.DownloadString("http://myip.ozymo.com/");
-                MessageBox.Show(myIP);
-                IPEndPoint ipEnd = new IPEndPoint(IPAddress.Parse(myIP), 8080);
+               // MessageBox.Show(myIP);
+                IPEndPoint ipEnd = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8080);
                 Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 try
                 {
@@ -116,7 +116,7 @@ namespace Server_Application
                 {
                     fileNameLen = BitConverter.ToInt32(state.buffer, 0);
                     fileName = Encoding.UTF8.GetString(state.buffer, 4, fileNameLen);
-                    receivedPath = @"C:\" + fileName;
+                    receivedPath = @"E:\" + fileName;
                     flag++;
                 }
 
@@ -163,7 +163,7 @@ namespace Server_Application
         {
             string connetionString = null;
             OleDbConnection cnn;
-            connetionString = "Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\\DEMIGUISE\\DEMIGUISE.mdb;";
+            connetionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\DEMIGUISE\DEMIGUISE.mdb";
             cnn = new OleDbConnection(connetionString);
             Int32 fileID = 1;
             try
