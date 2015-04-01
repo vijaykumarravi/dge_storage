@@ -18,7 +18,7 @@ namespace WindowsFormsApplication1
     {
         public String fName;
         public String s_fName;
-        Socket client_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+        Socket client_sock ;
         String ip;
         String connetionString = null;
         OleDbConnection cnn;
@@ -65,6 +65,7 @@ namespace WindowsFormsApplication1
         {
             try
             {
+                client_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 byte[] filename = Encoding.UTF8.GetBytes(s_fName);
                 byte[] fileData = File.ReadAllBytes(fName);
                 byte[] data = new byte[4 + fName.Length + fileData.Length];

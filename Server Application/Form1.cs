@@ -31,15 +31,7 @@ namespace Server_Application
             t1 = new Thread(new ThreadStart(StartListening));
             t1.Start();
             InitializeComponent();
-
-            for (int i = 0; i <= System.Net.Dns.GetHostEntry(myHost).AddressList.Length - 1; i++)
-            {
-                if (System.Net.Dns.GetHostEntry(myHost).AddressList[i].IsIPv6LinkLocal == false)
-                {
-                    myIP = System.Net.Dns.GetHostEntry(myHost).AddressList[i].ToString();
-                }
-            }
-          }
+         }
 
 
         public class StateObject
@@ -60,22 +52,28 @@ namespace Server_Application
             {
                 byte[] bytes = new Byte[8096];
 
-                // WebClient webClient = new WebClient();
-                //string IP = webClient.DownloadString("http://myip.ozymo.com/");
-               // MessageBox.Show(myIP);
-                IPEndPoint ipEnd = new IPEndPoint(IPAddress.Parse("127.0.0.1"), 8080);
+                for (int i = 0; i <= System.Net.Dns.GetHostEntry(myHost).AddressList.Length - 1; i++)
+                {
+                    if (System.Net.Dns.GetHostEntry(myHost).AddressList[i].IsIPv6LinkLocal == false)
+                    {
+                        myIP = System.Net.Dns.GetHostEntry(myHost).AddressList[i].ToString();
+                    }
+
+                }
+          
+                MessageBox.Show(myIP);
+                IPEndPoint ipEnd = new IPEndPoint(IPAddress.Parse(myIP), 8080);
                 Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 try
                 {
                     listener.Bind(ipEnd);
                     listener.Listen(100);
-                    //SetText("Listening For Connection");//.net framework 4.5
+                    
                     while (true)
                     {
                         allDone.Reset();
                         listener.BeginAccept(new AsyncCallback(AcceptCallback), listener);
                         allDone.WaitOne();
-
                     }
                 }
                 catch (Exception ex)
@@ -115,7 +113,7 @@ namespace Server_Application
                 {
                     fileNameLen = BitConverter.ToInt32(state.buffer, 0);
                     fileName = Encoding.UTF8.GetString(state.buffer, 4, fileNameLen);
-                    receivedPath = @"C:\Users\pragathi\" + fileName;
+                    receivedPath = @"E:\" + fileName;
                     flag++;
                 }
 
