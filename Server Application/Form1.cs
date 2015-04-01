@@ -82,7 +82,7 @@ namespace Server_Application
                 {
                 }
             }
-            catch (Exception e)
+            catch (Exception e) 
             {
                 Console.WriteLine("Exception");
             }
@@ -115,7 +115,7 @@ namespace Server_Application
                 {
                     fileNameLen = BitConverter.ToInt32(state.buffer, 0);
                     fileName = Encoding.UTF8.GetString(state.buffer, 4, fileNameLen);
-                    receivedPath = @"E:\" + fileName;
+                    receivedPath = @"C:\Users\pragathi\" + fileName;
                     flag++;
                 }
 
