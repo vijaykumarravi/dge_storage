@@ -39,8 +39,7 @@ namespace Server_Application
                     myIP = System.Net.Dns.GetHostEntry(myHost).AddressList[i].ToString();
                 }
             }
-           // MessageBox.Show(myIP);
-        }
+          }
 
 
         public class StateObject
@@ -132,7 +131,7 @@ namespace Server_Application
                         writer.Write(state.buffer, 0, bytesRead);
                     writer.Close();
 
-                    InsertNewFile(state.buffer);
+                   // InsertNewFile(state.buffer);
 
                     handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
                 }
@@ -174,7 +173,7 @@ namespace Server_Application
                 //Create a command
                 OleDbCommand nonqueryCommand = cnn.CreateCommand();
 
-                nonqueryCommand.CommandText = "INSERT  INTO tblFile (File_Template, Entered_Date, Entered_By) VALUES (@FileTemplate, @EnteredDate, @EnteredBy)";
+                nonqueryCommand.CommandText = "INSERT  INTO tblFile ([File_Template], [Entered_Date], [Entered_By]) VALUES (?,?,?)";
 
                 nonqueryCommand.Parameters.AddWithValue("FileTemplate", fileBytes);
                 nonqueryCommand.Parameters.AddWithValue("EnteredDate", DateTime.Now);

@@ -10,6 +10,7 @@ using System.Windows.Forms;
 using System.Net;
 using System.Net.Sockets;
 using System.IO;
+using System.Data.OleDb;
 
 namespace WindowsFormsApplication1
 {
@@ -19,6 +20,8 @@ namespace WindowsFormsApplication1
         public String s_fName;
         Socket client_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         String ip;
+        String connetionString = null;
+        OleDbConnection cnn;
         public Client()
         {
             InitializeComponent();
@@ -26,7 +29,7 @@ namespace WindowsFormsApplication1
             StatusStrip statusStrip1 = new StatusStrip();
             statusStrip1.Text = "Select a File";
             statusStrip1.Refresh();
-
+            cnn = new OleDbConnection();
         }
 
         private void openFileDialog1_FileOk(object sender, CancelEventArgs e)
@@ -72,15 +75,35 @@ namespace WindowsFormsApplication1
                 client_sock.Connect(ip, 8080);
                 client_sock.Send(data);
                 client_sock.Close();
+                String current_dir = System.Environment.CurrentDirectory;
+                Console.WriteLine(current_dir);
+                cnn.ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Vijay\Documents\GitHub\dge_storage\WindowsFormsApplication1\client_db.mdb";
+                
+                
+                OleDbCommand cmd = new OleDbCommand();
+                cmd.CommandType = CommandType.Text;
+                cmd.CommandText = "INSERT  INTO client_table ([File Name]) VALUES (?) ;";
+                cmd.Parameters.AddWithValue("@File Name", s_fName);
+                cmd.Connection = cnn;
+                cnn.Open();
+                cmd.ExecuteNonQuery();
+               
+                MessageBox.Show("Insert Successful");
+
+                
             }
 
 
 
             catch (Exception s)
             {
-                MessageBox.Show("Exception caught Unable to connect to Server");
+                MessageBox.Show(s.ToString());
             }
 
+        finally
+            {
+                cnn.Close();
+            }
         }
 
         private void button2_Click_1(object sender, EventArgs e)
