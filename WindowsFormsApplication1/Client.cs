@@ -110,8 +110,7 @@ namespace WindowsFormsApplication1
         {
 
             ip = textBox2.Text;
-            MessageBox.Show(ip);
-
+           
         }
     }
 }
