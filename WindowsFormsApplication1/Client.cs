@@ -18,8 +18,7 @@ namespace WindowsFormsApplication1
     {
         public String fName;
         public String s_fName;
-        Socket client_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-        String ip;
+        Socket client_sock;        String ip;
         String connetionString = null;
         OleDbConnection cnn;
         public Client()
@@ -65,6 +64,8 @@ namespace WindowsFormsApplication1
         {
             try
             {
+                client_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
                 byte[] filename = Encoding.UTF8.GetBytes(s_fName);
                 byte[] fileData = File.ReadAllBytes(fName);
                 byte[] data = new byte[4 + fName.Length + fileData.Length];
@@ -77,7 +78,7 @@ namespace WindowsFormsApplication1
                 client_sock.Close();
                 String current_dir = System.Environment.CurrentDirectory;
                 Console.WriteLine(current_dir);
-                cnn.ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Vijay\Documents\GitHub\dge_storage\WindowsFormsApplication1\client_db.mdb";
+                cnn.ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Pragathi\Documents\GitHub\dge_storage\WindowsFormsApplication1\client_db.mdb";
                 
                 
                 OleDbCommand cmd = new OleDbCommand();
