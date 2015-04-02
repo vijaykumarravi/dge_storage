@@ -65,7 +65,6 @@ namespace WindowsFormsApplication1
         {
             try
             {
-                client_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 byte[] filename = Encoding.UTF8.GetBytes(s_fName);
                 byte[] fileData = File.ReadAllBytes(fName);
                 byte[] data = new byte[4 + fName.Length + fileData.Length];
@@ -73,9 +72,8 @@ namespace WindowsFormsApplication1
                 fileNameLen.CopyTo(data, 0);
                 filename.CopyTo(data, 4);
                 fileData.CopyTo(data, 4 + s_fName.Length);
-                client_sock.Connect(ip, 8080);
                 client_sock.Send(data);
-                client_sock.Close();
+                
                 String current_dir = System.Environment.CurrentDirectory;
                 Console.WriteLine(current_dir);
                 cnn.ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Vijay\Documents\GitHub\dge_storage\WindowsFormsApplication1\client_db.mdb";
@@ -98,20 +96,37 @@ namespace WindowsFormsApplication1
 
             catch (Exception s)
             {
-                MessageBox.Show(s.ToString());
+                MessageBox.Show("Unable to Send.. Click Connect again..");
             }
 
         finally
             {
                 cnn.Close();
+                
             }
         }
 
         private void button2_Click_1(object sender, EventArgs e)
         {
+            try
+            {
 
-            ip = textBox2.Text;
-           
+
+                ip = textBox2.Text;
+                client_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                client_sock.Connect(ip, 8080);
+                MessageBox.Show(client_sock.Connected? "Connected to the Server" : "Server Not Listening" );
+            }
+            catch(SocketException ae)
+            {
+                MessageBox.Show("Server not listening");
+            }
+                
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            client_sock.Close();
         }
     }
 }
