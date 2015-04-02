@@ -76,7 +76,7 @@ namespace WindowsFormsApplication1
                 
                 String current_dir = System.Environment.CurrentDirectory;
                 Console.WriteLine(current_dir);
-                cnn.ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Vijay\Documents\GitHub\dge_storage\WindowsFormsApplication1\client_db.mdb";
+                cnn.ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Pragathi\Documents\GitHub\dge_storage\WindowsFormsApplication1\client_db.mdb";
                 
                 
                 OleDbCommand cmd = new OleDbCommand();
@@ -89,8 +89,7 @@ namespace WindowsFormsApplication1
                
                 MessageBox.Show("Insert Successful");
 
-                
-            }
+                 
 
 
 
@@ -119,7 +118,7 @@ namespace WindowsFormsApplication1
             }
             catch(SocketException ae)
             {
-                MessageBox.Show("Server not listening");
+                MessageBox.Show(ae.ToString());
             }
                 
         }
