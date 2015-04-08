@@ -37,10 +37,16 @@ namespace WindowsFormsApplication1
 
         }
 
-        private void button1_Click(object sender, EventArgs e)
-        {
-
-        }
+          private void button1_Click(object sender, EventArgs e)
+           {
+             /*  try
+               {
+           client_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                   client_sock.Connect(ip, 8080);
+              
+         
+               }*/
+           }
 
         private void button2_Click(object sender, EventArgs e)
         {
@@ -65,6 +71,8 @@ namespace WindowsFormsApplication1
         {
             try
             {
+                client_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                client_sock.Connect(ip, 8080);
                 byte[] filename = Encoding.UTF8.GetBytes(s_fName);
                 byte[] fileData = File.ReadAllBytes(fName);
                 byte[] data = new byte[4 + fName.Length + fileData.Length];
@@ -73,12 +81,13 @@ namespace WindowsFormsApplication1
                 filename.CopyTo(data, 4);
                 fileData.CopyTo(data, 4 + s_fName.Length);
                 client_sock.Send(data);
-                
+                client_sock.Close();
+
                 String current_dir = System.Environment.CurrentDirectory;
                 Console.WriteLine(current_dir);
                 cnn.ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Pragathi\Documents\GitHub\dge_storage\WindowsFormsApplication1\client_db.mdb";
-                
-                
+
+                // DATABASE//
                 OleDbCommand cmd = new OleDbCommand();
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandText = "INSERT  INTO client_table ([File Name]) VALUES (?) ;";
@@ -86,12 +95,12 @@ namespace WindowsFormsApplication1
                 cmd.Connection = cnn;
                 cnn.Open();
                 cmd.ExecuteNonQuery();
-               
+
                 MessageBox.Show("Insert Successful");
 
-                 
 
 
+            }
 
             catch (Exception s)
             {
@@ -105,6 +114,8 @@ namespace WindowsFormsApplication1
             }
         }
 
+
+
         private void button2_Click_1(object sender, EventArgs e)
         {
             try
@@ -115,6 +126,7 @@ namespace WindowsFormsApplication1
                 client_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 client_sock.Connect(ip, 8080);
                 MessageBox.Show(client_sock.Connected? "Connected to the Server" : "Server Not Listening" );
+                client_sock.Close();
             }
             catch(SocketException ae)
             {
@@ -125,7 +137,7 @@ namespace WindowsFormsApplication1
 
         private void button4_Click(object sender, EventArgs e)
         {
-            client_sock.Close();
+            
         }
     }
 }
