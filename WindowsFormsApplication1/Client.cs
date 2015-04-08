@@ -14,14 +14,19 @@ using System.Data.OleDb;
 
 namespace WindowsFormsApplication1
 {
+    
+       
+
+    
     public partial class Client : Form
     {
         public String fName;
         public String s_fName;
-        Socket client_sock ;
+        Socket client_sock; 
         String ip;
         String connetionString = null;
         OleDbConnection cnn;
+        int flag =0;
         public Client()
         {
             InitializeComponent();
@@ -29,6 +34,7 @@ namespace WindowsFormsApplication1
             StatusStrip statusStrip1 = new StatusStrip();
             statusStrip1.Text = "Select a File";
             statusStrip1.Refresh();
+           client_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             cnn = new OleDbConnection();
         }
 
@@ -39,7 +45,63 @@ namespace WindowsFormsApplication1
 
         private void button1_Click(object sender, EventArgs e)
         {
+            /*try
+            {
+                SocketFlags flag;
+                client_sock.Connect("104.39.6.191", 8080);
+                //byte[] message = System.Text.Encoding.UTF8.GetBytes("Request");
+                //client_sock.Send(message);
+               // StateObject state = new StateObject();
+                //state.workSocket = client_sock;
+                //client_sock.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
+                int BufferSize = 8096;
+                byte [] buff = new byte[BufferSize];
+                Console.WriteLine("BEFORE RECEIVE IN PEER");
+                client_sock.Receive(buff);
+                MessageBox.Show("received in client");
+                String res = null;
+                Read(buff);
+            }
+            catch (Exception ae)
+            {
+                Console.WriteLine(ae.Message.ToString());
+            }*/
+        }
 
+        public void Read(byte [] buff,int recv_len)
+        {
+            
+            int fileNameLen = 1;
+            string fileName;
+            string receivedPath = null;
+            String content = String.Empty;
+          //  StateObject state = (StateObject)ar.AsyncState;
+            //StateObject state = ob;
+            //Socket handler = state.workSocket;
+            int bytesRead = recv_len;
+            if (bytesRead > 0)
+            {
+                if (flag == 0)
+                {
+                    fileNameLen = BitConverter.ToInt32(buff, 0);
+                    fileName = Encoding.UTF8.GetString(buff, 4, fileNameLen);
+                    receivedPath = @"E:\" + fileName;
+                    flag++;
+                }
+
+                if (flag >= 1)
+                {
+                    BinaryWriter writer = new BinaryWriter(File.Open(receivedPath, FileMode.Append));
+                    if (flag == 1)
+                    {
+                        writer.Write(buff, 4 + fileNameLen, bytesRead - (4 + fileNameLen));
+                        flag++;
+                    }
+                    else
+                        writer.Write(buff, 0, bytesRead);
+                    writer.Close();
+                }
+            }
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -65,8 +127,8 @@ namespace WindowsFormsApplication1
         {
             try
             {
-                client_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                client_sock.Connect(ip, 8080);
+                //client_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                //client_sock.Connect(ip, 8080);
                 byte[] filename = Encoding.UTF8.GetBytes(s_fName);
                 byte[] fileData = File.ReadAllBytes(fName);
                 byte[] data = new byte[4 + fName.Length + fileData.Length];
@@ -75,8 +137,6 @@ namespace WindowsFormsApplication1
                 filename.CopyTo(data, 4);
                 fileData.CopyTo(data, 4 + s_fName.Length);
                 client_sock.Send(data);
-                client_sock.Close();
-
                 String current_dir = System.Environment.CurrentDirectory;
                 Console.WriteLine(current_dir);
                 cnn.ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Vijay\Documents\GitHub\dge_storage\WindowsFormsApplication1\client_db.mdb";
@@ -91,15 +151,19 @@ namespace WindowsFormsApplication1
                 cmd.ExecuteNonQuery();
                
                 MessageBox.Show("Insert Successful");
-
+              
+                Socket serv_socket = client_sock;
+                //serv_socket.Listen(100);
+                //serv_socket.Accept();
+                byte[] servData = new byte[1024 * 5000];
+                int recv_len = serv_socket.Receive(servData);
+                Read(servData, recv_len);
                 
             }
-
-
-
+                
             catch (Exception s)
             {
-                MessageBox.Show("Unable to Send.. Click Connect again..");
+                MessageBox.Show(s.Message);
             }
 
         finally
@@ -116,10 +180,9 @@ namespace WindowsFormsApplication1
 
 
                 ip = textBox2.Text;
-                client_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 client_sock.Connect(ip, 8080);
-                MessageBox.Show(client_sock.Connected? "Connected to the Server" : "Server Not Listening" );
-                client_sock.Close();
+                MessageBox.Show(client_sock.Connected? "Connected to the Server" : "Servedr Not Listening" );
+               
             }
             catch(SocketException ae)
             {
@@ -132,5 +195,19 @@ namespace WindowsFormsApplication1
         {
             
         }
+
+        private void button4_Click_1(object sender, EventArgs e)
+        {
+            client_sock.Close();
+        }
     }
+     /*public class StateObject
+            {
+                // Client socket.
+                public Socket workSocket = null;
+
+                public const int BufferSize = 8096;
+                // Receive buffer.
+                public byte[] buffer = new byte[BufferSize];
+            }*/
 }
