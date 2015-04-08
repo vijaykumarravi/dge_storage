@@ -19,101 +19,95 @@ namespace Server_Application
 {
     public partial class Server : Form
     {
-        Thread t1;
-        int flag = 0;
-        string receivedPath = "nil";
+        Thread t;
+        String myIp=null;
+        Socket server;
+        Socket client_sock;
         string myHost = System.Net.Dns.GetHostName();
-        string myIP = null;
-        public delegate void MyDelegate();
-        private string fileName;
+        Connected conn_client;
+        //TcpListener server = new TcpListener(8080);
+        //TcpClient client = default(TcpClient);
         public Server()
         {
-            t1 = new Thread(new ThreadStart(StartListening));
-            t1.Start();
             InitializeComponent();
-         }
-
-
-        public class StateObject
-        {
-            // Client socket.
-            public Socket workSocket = null;
-
-            public const int BufferSize = 8096;
-            // Receive buffer.
-            public byte[] buffer = new byte[BufferSize];
-        }
-
-        public static ManualResetEvent allDone = new ManualResetEvent(true);
-
-        public void StartListening()
-        {
-            try
+        
+            // GET IP OF SERVER //
+            for (int i = 0; i <= System.Net.Dns.GetHostEntry(myHost).AddressList.Length - 1; i++)
             {
-                byte[] bytes = new Byte[8096];
-
-                for (int i = 0; i <= System.Net.Dns.GetHostEntry(myHost).AddressList.Length - 1; i++)
+                if (System.Net.Dns.GetHostEntry(myHost).AddressList[i].IsIPv6LinkLocal == false)
                 {
-                    if (System.Net.Dns.GetHostEntry(myHost).AddressList[i].IsIPv6LinkLocal == false)
-                    {
-                        myIP = System.Net.Dns.GetHostEntry(myHost).AddressList[i].ToString();
-                    }
-
+                    myIp = System.Net.Dns.GetHostEntry(myHost).AddressList[i].ToString();
                 }
-          
-                MessageBox.Show(myIP);
-                IPEndPoint ipEnd = new IPEndPoint(IPAddress.Parse(myIP), 8080);
-                Socket listener = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+
+            }
+            MessageBox.Show(myIp);
+            IPEndPoint ip_end = new IPEndPoint(IPAddress.Parse(myIp), 8080);
+            server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
+            server.Bind(ip_end);
+                    
+            while (true)
+            {
+                    server.Listen(100);
+                    client_sock = server.Accept();
+                    t = new Thread(new ThreadStart(listen));
+                    t.Start();
+        
+            }
+            conn_client = new Connected();
+            //    server.Start();
+          //  listen();
+           }
+
+        public void listen()
+        {
                 try
                 {
-                    listener.Bind(ipEnd);
-                    listener.Listen(100);
-                    
-                    while (true)
-                    {
-                        allDone.Reset();
-                        listener.BeginAccept(new AsyncCallback(AcceptCallback), listener);
-                        allDone.WaitOne();
-                    }
+                    MessageBox.Show("COOOO");
+                    MessageBox.Show(client_sock.RemoteEndPoint.ToString());
+
+                    conn_client.ips.Add(client_sock.RemoteEndPoint.ToString());
+                    byte[] clientData = new byte[1024 * 5000];
+                    int recv_len = client_sock.Receive(clientData);
+
+                    //data ob = new data();
+                    //ob.length = client_sock.Receive(ob.buffer);
+                    MessageBox.Show(recv_len.ToString());
+                    store(clientData,recv_len);
+                    //forward(clientData);
+                    //    client_sock.Send(clientData);
                 }
-                catch (Exception ex)
+
+                catch (Exception e)
                 {
+
                 }
-            }
-            catch (Exception e) 
-            {
-                Console.WriteLine("Exception");
-            }
-        }
 
-        public void AcceptCallback(IAsyncResult ar)
+            }
+        
+        public void forward(byte [] buffer)
         {
-            allDone.Set();
+            Socket peer= new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
 
-            Socket listener = (Socket)ar.AsyncState;
-            Socket handler = listener.EndAccept(ar);
-
-            StateObject state = new StateObject();
-            state.workSocket = handler;
-            handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
-            flag = 0;
 
         }
-
-        public void ReadCallback(IAsyncResult ar)
+        public void store(byte [] buffer,int length)
         {
             int fileNameLen = 1;
+            int flag = 0;
+            string fileName;
+            string receivedPath = null;
             String content = String.Empty;
-            StateObject state = (StateObject)ar.AsyncState;
-            Socket handler = state.workSocket;
-            int bytesRead = handler.EndReceive(ar);
+            //  StateObject state = (StateObject)ar.AsyncState;
+            //StateObject state = ob;
+            //Socket handler = state.workSocket;
+            int bytesRead = length;
             if (bytesRead > 0)
             {
                 if (flag == 0)
                 {
-                    fileNameLen = BitConverter.ToInt32(state.buffer, 0);
-                    fileName = Encoding.UTF8.GetString(state.buffer, 4, fileNameLen);
-                    receivedPath = @"E:\" + fileName;
+                    fileNameLen = BitConverter.ToInt32(buffer, 0);
+                    fileName = Encoding.UTF8.GetString(buffer, 4, fileNameLen);
+                    receivedPath = @"F:\" + fileName;
                     flag++;
                 }
 
@@ -122,74 +116,15 @@ namespace Server_Application
                     BinaryWriter writer = new BinaryWriter(File.Open(receivedPath, FileMode.Append));
                     if (flag == 1)
                     {
-                        writer.Write(state.buffer, 4 + fileNameLen, bytesRead - (4 + fileNameLen));
+                        writer.Write(buffer, 4 + fileNameLen, bytesRead - (4 + fileNameLen));
                         flag++;
                     }
                     else
-                        writer.Write(state.buffer, 0, bytesRead);
+                        writer.Write(buffer, 0, bytesRead);
                     writer.Close();
-
-                   // InsertNewFile(state.buffer);
-
-                    handler.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
                 }
             }
-            else
-            {
-                Invoke(new MyDelegate(LabelWriter));
-            }
-
         }
-
-        public void LabelWriter()
-        {
-            label1.Text = "Data has been received " + fileName;
-        }
-
-        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            t1.Abort();
-        }
-
-        private void Form1_Load(object sender, EventArgs e)
-        {
-
-        }
-
-        private Int32 InsertNewFile(byte[] fileBytes)
-        {
-            string connetionString = null;
-            OleDbConnection cnn;
-            connetionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\DEMIGUISE\DEMIGUISE.mdb";
-            cnn = new OleDbConnection(connetionString);
-            Int32 fileID = 1;
-            try
-            {
-                // open the data connection
-                cnn.Open();
-
-                //Create a command
-                OleDbCommand nonqueryCommand = cnn.CreateCommand();
-
-                nonqueryCommand.CommandText = "INSERT  INTO tblFile ([File_Template], [Entered_Date], [Entered_By]) VALUES (?,?,?)";
-
-                nonqueryCommand.Parameters.AddWithValue("FileTemplate", fileBytes);
-                nonqueryCommand.Parameters.AddWithValue("EnteredDate", DateTime.Now);
-                nonqueryCommand.Parameters.AddWithValue("EnteredBy", "Server");
-
-                nonqueryCommand.ExecuteNonQuery();
-
-                cnn.Close();
-
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show("Error while saving the file to the database. Error Message:" + ex.Message);
-            }
-
-            return fileID;
-        }
-
         private void button1_Click(object sender, EventArgs e)
         {
            MessageBox.Show("Listening");
