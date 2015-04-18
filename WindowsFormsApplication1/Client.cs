@@ -11,6 +11,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.IO;
 using System.Data.OleDb;
+using Demiguise;
 
 namespace WindowsFormsApplication1
 {
@@ -27,6 +28,7 @@ namespace WindowsFormsApplication1
         String connetionString = null;
         OleDbConnection cnn;
         int flag =0;
+        FileList flform;
         public Client()
         {
             InitializeComponent();
@@ -34,7 +36,7 @@ namespace WindowsFormsApplication1
             StatusStrip statusStrip1 = new StatusStrip();
             statusStrip1.Text = "Select a File";
             statusStrip1.Refresh();
-           client_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            client_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             cnn = new OleDbConnection();
         }
 
@@ -45,28 +47,42 @@ namespace WindowsFormsApplication1
 
         private void button1_Click(object sender, EventArgs e)
         {
-            /*try
+            try
             {
-                SocketFlags flag;
-                client_sock.Connect("104.39.6.191", 8080);
-                //byte[] message = System.Text.Encoding.UTF8.GetBytes("Request");
-                //client_sock.Send(message);
-               // StateObject state = new StateObject();
-                //state.workSocket = client_sock;
-                //client_sock.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
-                int BufferSize = 8096;
-                byte [] buff = new byte[BufferSize];
-                Console.WriteLine("BEFORE RECEIVE IN PEER");
-                client_sock.Receive(buff);
-                MessageBox.Show("received in client");
-                String res = null;
-                Read(buff);
+                Socket serv_socket = client_sock;
+                //serv_socket.Listen(100);
+                //serv_socket.Accept();
+                byte[] servData = new byte[1024 * 5000];
+                int recv_len = serv_socket.Receive(servData);
+                Read(servData, recv_len);
+
+                /*try
+                {
+                    SocketFlags flag;
+                    client_sock.Connect("104.39.6.191", 8080);
+                    //byte[] message = System.Text.Encoding.UTF8.GetBytes("Request");
+                    //client_sock.Send(message);
+                   // StateObject state = new StateObject();
+                    //state.workSocket = client_sock;
+                    //client_sock.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
+                    int BufferSize = 8096;
+                    byte [] buff = new byte[BufferSize];
+                    Console.WriteLine("BEFORE RECEIVE IN PEER");
+                    client_sock.Receive(buff);
+                    MessageBox.Show("received in client");
+                    String res = null;
+                    Read(buff);
+                }
+                catch (Exception ae)
+                {
+                    Console.WriteLine(ae.Message.ToString());
+                }*/
             }
-            catch (Exception ae)
+            catch(Exception ae)
             {
-                Console.WriteLine(ae.Message.ToString());
-            }*/
-        }
+                MessageBox.Show(ae.Message);
+            }
+            }
 
         public void Read(byte [] buff,int recv_len)
         {
@@ -75,9 +91,10 @@ namespace WindowsFormsApplication1
             string fileName;
             string receivedPath = null;
             String content = String.Empty;
-          //  StateObject state = (StateObject)ar.AsyncState;
+          //StateObject state = (StateObject)ar.AsyncState;
             //StateObject state = ob;
             //Socket handler = state.workSocket;
+            MessageBox.Show("Reading");
             int bytesRead = recv_len;
             if (bytesRead > 0)
             {
@@ -152,12 +169,6 @@ namespace WindowsFormsApplication1
                
                 MessageBox.Show("Insert Successful");
               
-                Socket serv_socket = client_sock;
-                //serv_socket.Listen(100);
-                //serv_socket.Accept();
-                byte[] servData = new byte[1024 * 5000];
-                int recv_len = serv_socket.Receive(servData);
-                Read(servData, recv_len);
                 
             }
                 
@@ -199,6 +210,13 @@ namespace WindowsFormsApplication1
         private void button4_Click_1(object sender, EventArgs e)
         {
             client_sock.Close();
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            flform = new FileList();
+            flform.ShowDialog();
+            textBox1.Text=flform.result;
         }
     }
      /*public class StateObject
