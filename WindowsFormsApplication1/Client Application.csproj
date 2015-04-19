@@ -95,6 +95,7 @@
     <Compile Include="FileList.Designer.cs">
       <DependentUpon>FileList.cs</DependentUpon>
     </Compile>
+    <Compile Include="peerHandle.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Client.resx">

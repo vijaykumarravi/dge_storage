@@ -10,7 +10,8 @@ namespace Server_Application
 {
     static class mapclass
     {
-        public static Dictionary<IPAddress, Socket> map = new Dictionary<IPAddress, Socket>();
+        public static Dictionary<IPAddress, Socket> socket_object_map = new Dictionary<IPAddress, Socket>();
+        public static Dictionary<String, IPAddress> client_IP_map = new Dictionary<String, IPAddress>();
     }
 
 }

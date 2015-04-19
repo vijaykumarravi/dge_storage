@@ -27,7 +27,7 @@ namespace Server_Application
         string myHost = System.Net.Dns.GetHostName();
         public Server()
         {
-            
+            InitializeComponent();
             try
             {
                 // GET IP OF SERVER //
@@ -39,23 +39,18 @@ namespace Server_Application
                     }
 
                 }
-                InitializeComponent();
+                
                 MessageBox.Show(myIp);
                 IPEndPoint ip_end = new IPEndPoint(IPAddress.Parse(myIp), 8080);
                 server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
                 server.Bind(ip_end);
-
+                
                 while (true)
                 {
 
-                    server.Listen(100);
+                    server.Listen(10);
                     client_sock = server.Accept();
                     HandleClient hc = new HandleClient();
-                    IPEndPoint r = client_sock.RemoteEndPoint as IPEndPoint;
-                    mapclass.map.Add(r.Address, client_sock);
-                    
-                    if (mapclass.map.ContainsKey(r.Address))
-                        MessageBox.Show("HAS OB IN HASH");
                     hc.startClient(client_sock);
 
 
@@ -63,7 +58,7 @@ namespace Server_Application
             }
         catch(Exception we)
             {
-                MessageBox.Show(we.Message);
+                MessageBox.Show(we.Message+"exc");
             }
         }
         

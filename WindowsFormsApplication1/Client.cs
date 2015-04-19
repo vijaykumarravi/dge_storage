@@ -12,6 +12,7 @@ using System.Net.Sockets;
 using System.IO;
 using System.Data.OleDb;
 using Demiguise;
+using System.Threading;
 
 namespace WindowsFormsApplication1
 {
@@ -22,6 +23,7 @@ namespace WindowsFormsApplication1
     public partial class Client : Form
     {
         public String fName;
+        private String clientid;
         public String s_fName;
         Socket client_sock; 
         String ip;
@@ -29,69 +31,34 @@ namespace WindowsFormsApplication1
         OleDbConnection cnn;
         int flag =0;
         FileList flform;
+        Thread peerhandle;
+       
+        peerHandle peer_ob;
         public Client()
         {
+            clientid = "1";
             InitializeComponent();
+            peer_ob = new peerHandle();
+            peer_ob.start();
             OpenFileDialog ofd = new OpenFileDialog();
             StatusStrip statusStrip1 = new StatusStrip();
             statusStrip1.Text = "Select a File";
             statusStrip1.Refresh();
             client_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             cnn = new OleDbConnection();
-        }
-
-        private void openFileDialog1_FileOk(object sender, CancelEventArgs e)
-        {
-
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                Socket serv_socket = client_sock;
-                //serv_socket.Listen(100);
-                //serv_socket.Accept();
-                byte[] servData = new byte[1024 * 5000];
-                int recv_len = serv_socket.Receive(servData);
-                Read(servData, recv_len);
-
-                /*try
-                {
-                    SocketFlags flag;
-                    client_sock.Connect("104.39.6.191", 8080);
-                    //byte[] message = System.Text.Encoding.UTF8.GetBytes("Request");
-                    //client_sock.Send(message);
-                   // StateObject state = new StateObject();
-                    //state.workSocket = client_sock;
-                    //client_sock.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReadCallback), state);
-                    int BufferSize = 8096;
-                    byte [] buff = new byte[BufferSize];
-                    Console.WriteLine("BEFORE RECEIVE IN PEER");
-                    client_sock.Receive(buff);
-                    MessageBox.Show("received in client");
-                    String res = null;
-                    Read(buff);
-                }
-                catch (Exception ae)
-                {
-                    Console.WriteLine(ae.Message.ToString());
-                }*/
-            }
-            catch(Exception ae)
-            {
-                MessageBox.Show(ae.Message);
-            }
-            }
-
-        public void Read(byte [] buff,int recv_len)
-        {
             
+        }
+        
+        
+        
+    public void Read(byte[] buff, int recv_len)
+        {
+
             int fileNameLen = 1;
             string fileName;
             string receivedPath = null;
             String content = String.Empty;
-          //StateObject state = (StateObject)ar.AsyncState;
+            //StateObject state = (StateObject)ar.AsyncState;
             //StateObject state = ob;
             //Socket handler = state.workSocket;
             MessageBox.Show("Reading");
@@ -120,6 +87,40 @@ namespace WindowsFormsApplication1
                 }
             }
         }
+    
+
+        private void openFileDialog1_FileOk(object sender, CancelEventArgs e)
+        {
+
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                
+                String req = "StoreRe";
+                byte[] msg = Encoding.UTF8.GetBytes(req);
+                client_sock.Send(msg);
+                int recv_le = client_sock.Receive(msg);
+                String repl = Encoding.UTF8.GetString(msg, 0, recv_le);
+
+                if(repl.Equals("Send th"))
+                {
+                    MessageBox.Show("Select the file and click Send to Sore the File");
+                }
+                else
+                {
+                    MessageBox.Show("Server denied the request"+repl);
+                }
+            }
+            catch(Exception ae)
+            {
+                MessageBox.Show(ae.Message);
+            }
+            }
+
+        
 
         private void button2_Click(object sender, EventArgs e)
         {
@@ -193,7 +194,9 @@ namespace WindowsFormsApplication1
                 ip = textBox2.Text;
                 client_sock.Connect(ip, 8080);
                 MessageBox.Show(client_sock.Connected? "Connected to the Server" : "Servedr Not Listening" );
-               
+                client_sock.Send(Encoding.UTF8.GetBytes(clientid));
+                byte[] b = new byte[10];
+                client_sock.Receive(b);
             }
             catch(SocketException ae)
             {
@@ -218,14 +221,32 @@ namespace WindowsFormsApplication1
             flform.ShowDialog();
             textBox1.Text=flform.result;
         }
-    }
-     /*public class StateObject
-            {
-                // Client socket.
-                public Socket workSocket = null;
 
-                public const int BufferSize = 8096;
-                // Receive buffer.
-                public byte[] buffer = new byte[BufferSize];
-            }*/
-}
+        private void button6_Click(object sender, EventArgs e)
+        {
+            String req = "Retrive";
+            
+            if(textBox1.Text==null)
+            {
+                MessageBox.Show("Select a file name from list of files");
+            }
+            byte[] req_msg = Encoding.UTF8.GetBytes(req);
+            byte[] fileName = Encoding.UTF8.GetBytes(textBox1.Text);
+            byte[] msg = new byte[7 + fileName.Length];
+            req_msg.CopyTo(msg, 0);
+            fileName.CopyTo(msg,7);
+            client_sock.Send(msg);
+            int recv_le = client_sock.Receive(msg);
+            String repl = Encoding.UTF8.GetString(msg, 0, recv_le);
+
+            if (repl.Equals("Wait"))
+            {
+                MessageBox.Show("File being retrived");
+            }
+            else
+            {
+                MessageBox.Show("File not found");
+            }
+        }
+    }
+   }
