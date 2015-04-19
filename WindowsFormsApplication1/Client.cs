@@ -111,7 +111,7 @@ namespace WindowsFormsApplication1
                 }
                 else
                 {
-                    MessageBox.Show("Server denied the request"+repl);
+                    MessageBox.Show("Server denied the request");
                 }
             }
             catch(Exception ae)
@@ -147,32 +147,38 @@ namespace WindowsFormsApplication1
             {
                 //client_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 //client_sock.Connect(ip, 8080);
-                byte[] filename = Encoding.UTF8.GetBytes(s_fName);
-                byte[] fileData = File.ReadAllBytes(fName);
-                byte[] data = new byte[4 + fName.Length + fileData.Length];
-                byte[] fileNameLen = BitConverter.GetBytes(s_fName.Length);
-                fileNameLen.CopyTo(data, 0);
-                filename.CopyTo(data, 4);
-                fileData.CopyTo(data, 4 + s_fName.Length);
-                client_sock.Send(data);
-                String current_dir = System.Environment.CurrentDirectory;
-                Console.WriteLine(current_dir);
-                cnn.ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Vijay\Documents\GitHub\dge_storage\WindowsFormsApplication1\client_db.mdb";
-                
-                // DATABASE//
-                OleDbCommand cmd = new OleDbCommand();
-                cmd.CommandType = CommandType.Text;
-                cmd.CommandText = "INSERT  INTO client_table ([File Name]) VALUES (?) ;";
-                cmd.Parameters.AddWithValue("@File Name", s_fName);
-                cmd.Connection = cnn;
-                cnn.Open();
-                cmd.ExecuteNonQuery();
                
-                MessageBox.Show("Insert Successful");
-              
-                
-            }
-                
+                    if (fName != null)
+                    {
+                        byte[] filename = Encoding.UTF8.GetBytes(s_fName);
+                        byte[] fileData = File.ReadAllBytes(fName);
+                        byte[] data = new byte[4 + fName.Length + fileData.Length];
+                        byte[] fileNameLen = BitConverter.GetBytes(s_fName.Length);
+                        fileNameLen.CopyTo(data, 0);
+                        filename.CopyTo(data, 4);
+                        fileData.CopyTo(data, 4 + s_fName.Length);
+                        client_sock.Send(data);
+                        String current_dir = System.Environment.CurrentDirectory;
+                        Console.WriteLine(current_dir);
+                        cnn.ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Vijay\Documents\GitHub\dge_storage\WindowsFormsApplication1\client_db.mdb";
+
+                        // DATABASE//
+                        OleDbCommand cmd = new OleDbCommand();
+                        cmd.CommandType = CommandType.Text;
+                        cmd.CommandText = "INSERT  INTO client_table ([File Name]) VALUES (?) ;";
+                        cmd.Parameters.AddWithValue("@File Name", s_fName);
+                        cmd.Connection = cnn;
+                        cnn.Open();
+                        cmd.ExecuteNonQuery();
+                        MessageBox.Show("Insert Successful");
+                       
+                    }
+                    else
+                        MessageBox.Show("Select a File");
+
+                }
+            
+
             catch (Exception s)
             {
                 MessageBox.Show(s.Message);
@@ -193,7 +199,7 @@ namespace WindowsFormsApplication1
 
                 ip = textBox2.Text;
                 client_sock.Connect(ip, 8080);
-                MessageBox.Show(client_sock.Connected? "Connected to the Server" : "Servedr Not Listening" );
+                MessageBox.Show(client_sock.Connected? "Connected to the Server" : "Server Not Listening" );
                 client_sock.Send(Encoding.UTF8.GetBytes(clientid));
                 byte[] b = new byte[10];
                 client_sock.Receive(b);

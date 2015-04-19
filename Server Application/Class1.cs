@@ -114,10 +114,18 @@ namespace Server_Application
                 cmd.Connection = cnn;
                 cnn.Open();
                 OleDbDataReader reader = cmd.ExecuteReader();
-                reader.Read();
-                String peer_id = reader.GetString(1);
+                String peer_id=null;
+                String free_sapce=null;
+                while (reader.Read())
+                {
+                    peer_id = reader.GetString(1);
+                    free_sapce = reader.GetString(2);
+                    if (mapclass.client_IP_map.ContainsKey(peer_id))
+                        break;
+                  
+                }
                 MessageBox.Show(peer_id);
-                forward(clientData, peer_id);
+                forward(clientData, peer_id, free_sapce);
             }
             catch (Exception ae)
             {
@@ -125,7 +133,7 @@ namespace Server_Application
             }
 
         }
-        public void forward(byte[] buffer, String peer_id)
+        public void forward(byte[] buffer, String peer_id, String free_space)
         {
             try
             {
@@ -135,18 +143,16 @@ namespace Server_Application
                 IPEndPoint myip = client_socket.RemoteEndPoint as IPEndPoint;
                 IPAddress IpAddress;
                 Socket to_peer = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                //if (mapclass..ContainsKey(IpAddress))
-                  //   MessageBox.Show("Object present");
                 IpAddress = mapclass.client_IP_map[peer_id];
                 to_peer.Connect(IpAddress, 5050);
-                to_peer.Send(Encoding.UTF8.GetBytes("SotreRe"));
+                to_peer.Send(Encoding.UTF8.GetBytes("StoreRe"));
                 to_peer.Receive(b);
                 if (Encoding.UTF8.GetString(b).Equals("OK To Send"))
                 {
                     to_peer.Send(buffer);
                     fileNameLen = BitConverter.ToInt32(buffer, 0);
                     fileName = Encoding.UTF8.GetString(buffer, 4, fileNameLen);
-                    // DATABASE//
+                    Double n_free = Double.Parse(free_space);
                     OleDbCommand cmd = new OleDbCommand();
                     cmd.CommandType = CommandType.Text;
                     cmd.CommandText = "INSERT  INTO Server_Table ([ClientId],[File Name],[Time Stamp],[EndClient]) VALUES (?,?,?,?) ;";
@@ -154,11 +160,13 @@ namespace Server_Application
                     cmd.Parameters.AddWithValue("@File Name", fileName);
                     cmd.Parameters.AddWithValue("@Time Stamp", System.DateTime.Now.TimeOfDay.ToString());
                     cmd.Parameters.AddWithValue("@EndClient", peer_id);
-
                     cmd.Connection = cnn;
                     cnn.Open();
                     cmd.ExecuteNonQuery();
-
+                    cmd.CommandText = "UPDATE Status SET Free Space= ? WHERE Client Id = ?;";
+                    n_free = n_free-buffer.Length;
+                    cmd.Parameters.AddWithValue("@Free Space", n_free.ToString());
+                    cmd.Parameters.AddWithValue("@Client Id", peer_id);
                     MessageBox.Show("Server :Insert Successful");
                     to_peer.Receive(b);
                 }

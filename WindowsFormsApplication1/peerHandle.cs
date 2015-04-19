@@ -53,7 +53,7 @@ namespace Demiguise
 
                 while (true)
                 {
-                    MessageBox.Show("peer_running");
+                    
                     byte[] data = new byte[1000 * 500];
                     peer_req.Listen(100);
                     peer_handle = peer_req.Accept();
@@ -61,6 +61,7 @@ namespace Demiguise
                     int recv = peer_handle.Receive(msg);
                     if (Encoding.UTF8.GetString(msg).Equals("StoreRe"))
                     {
+                        MessageBox.Show("peer_running");
                         peer_req.Send(Encoding.UTF8.GetBytes("OK To Send"));
                         recv = peer_req.Receive(data);
                         Read(data, recv);
@@ -99,9 +100,6 @@ namespace Demiguise
             string fileName;
             string receivedPath = null;
             String content = String.Empty;
-            //StateObject state = (StateObject)ar.AsyncState;
-            //StateObject state = ob;
-            //Socket handler = state.workSocket;
             MessageBox.Show("Reading");
             int bytesRead = recv_len;
             if (bytesRead > 0)
