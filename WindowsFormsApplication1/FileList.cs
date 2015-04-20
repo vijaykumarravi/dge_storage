@@ -38,7 +38,6 @@ namespace Demiguise
                 {
                     DataSet ds = new DataSet();
                     adapter.Fill(ds);
-                    //   dataGridView1.DataSource = ds.Tables[0];
                     var t = new DataTable();
                     adapter.Fill(t);
 

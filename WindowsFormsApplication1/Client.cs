@@ -31,12 +31,13 @@ namespace WindowsFormsApplication1
         OleDbConnection cnn;
         int flag =0;
         FileList flform;
-        Thread peerhandle;
-       
+        String retFName;
+              
         peerHandle peer_ob;
         public Client()
         {
-            clientid = "2";
+            clientid = "1";
+            retFName = null;
             InitializeComponent();
             peer_ob = new peerHandle();
             peer_ob.start();
@@ -61,7 +62,6 @@ namespace WindowsFormsApplication1
             //StateObject state = (StateObject)ar.AsyncState;
             //StateObject state = ob;
             //Socket handler = state.workSocket;
-            MessageBox.Show("Reading");
             int bytesRead = recv_len;
             if (bytesRead > 0)
             {
@@ -170,7 +170,7 @@ namespace WindowsFormsApplication1
                         cmd.Connection = cnn;
                         cnn.Open();
                         cmd.ExecuteNonQuery();
-                        MessageBox.Show("Insert Successful");
+     //                   MessageBox.Show("Insert Successful");
                        
                     }
                     else
@@ -199,10 +199,11 @@ namespace WindowsFormsApplication1
 
                 ip = textBox2.Text;
                 client_sock.Connect(ip, 8080);
-                MessageBox.Show(client_sock.Connected? "Connected to the Server" : "Server Not Listening" );
                 client_sock.Send(Encoding.UTF8.GetBytes(clientid));
                 byte[] b = new byte[10];
                 client_sock.Receive(b);
+                MessageBox.Show(client_sock.Connected ? "Connected to the Server" : "Server Not Listening");
+       
             }
             catch(SocketException ae)
             {
@@ -226,13 +227,48 @@ namespace WindowsFormsApplication1
             flform = new FileList();
             flform.ShowDialog();
             textBox1.Text=flform.result;
+            retFName = textBox1.Text;
         }
 
         private void button6_Click(object sender, EventArgs e)
         {
             String req = "Retrive";
+            MessageBox.Show(retFName);
+            if (retFName != null)
+            {
 
-            if (textBox1.Text != null)
+                byte[] req_msg = Encoding.UTF8.GetBytes(req);
+                byte[] fileName = Encoding.UTF8.GetBytes(textBox1.Text);
+                byte[] msg = new byte[7 + fileName.Length];
+                req_msg.CopyTo(msg, 0);
+                fileName.CopyTo(msg, 7);
+                client_sock.Send(msg);
+                int recv_le = client_sock.Receive(msg);
+                String repl = Encoding.UTF8.GetString(msg, 0, recv_le);
+                byte[] data = new byte[500 * 1000];
+                if (repl.Equals("Waitttt"))
+                {
+                    MessageBox.Show("File being retrived");
+                    client_sock.Receive(data);
+                    MessageBox.Show("Read Successful");
+                    Read(data, data.Length);
+                }
+                else
+                {
+                    MessageBox.Show("File not found");
+                }
+                retFName = null;
+            }
+            else
+            {
+                MessageBox.Show("Select a file name from list of files");
+            }
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+            String req = "Deletee";
+            if (retFName != null)
             {
 
                 byte[] req_msg = Encoding.UTF8.GetBytes(req);

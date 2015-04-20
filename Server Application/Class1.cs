@@ -24,7 +24,8 @@ namespace Server_Application
         Thread t;
         public List<String> ips = new List<String>();
         OleDbConnection cnn;
-                
+        private Dictionary<String, IPAddress> client_IP_map = new Dictionary<String, IPAddress>();
+        private ReaderWriterLockSlim thislock = new ReaderWriterLockSlim();
         public void startClient(Socket s)
         {
             this.client_socket = s;
@@ -37,19 +38,16 @@ namespace Server_Application
         {
             try
             {
+                byte[] clientid_msg = new byte[10];
+                client_socket.Receive(clientid_msg);
+                IPEndPoint r = client_socket.RemoteEndPoint as IPEndPoint;
+                clientid = Encoding.UTF8.GetString(clientid_msg);
+                //MessageBox.Show("Client ID FROM SERVER:" + clientid);
+                Server.client_IP_map.Add(clientid, r.Address);
+                int i = 2;
+                client_socket.Send(Encoding.UTF8.GetBytes("CONNECTED"));
                 cnn = new OleDbConnection();
                 cnn.ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Vijay\Documents\GitHub\dge_storage\Server Application\Server_Database.mdb";
-                IPEndPoint r = client_socket.RemoteEndPoint as IPEndPoint;
-                byte [] clientid_msg = new byte[10];
-                client_socket.Receive(clientid_msg);
-                clientid = Encoding.UTF8.GetString(clientid_msg);
-                MessageBox.Show("Client ID FROM SERVER:" + clientid);
-                mapclass.client_IP_map.Add(clientid, r.Address);
-
-                if (mapclass.client_IP_map.ContainsKey(clientid))
-                  MessageBox.Show("HAS OB IN HASH");
-                MessageBox.Show(client_socket.RemoteEndPoint.ToString());
-                client_socket.Send(Encoding.UTF8.GetBytes("CONNECTED"));
                 byte[] message = new byte[100];
                 int recv_len = client_socket.Receive(message);
                 if (recv_len == 7)
@@ -70,7 +68,11 @@ namespace Server_Application
                             byte[] b = new byte[10];
                             retriveFile(client_socket,fName,"104.39.6.174");
                             
-                    }
+                        }
+                     else
+                     {
+                         deleteFile(client_socket, fName, "104.39.6.174");
+                     }
                 }
             }
 
@@ -79,6 +81,26 @@ namespace Server_Application
 
             }
 
+        }
+        public void deleteFile(Socket client_socket,String fName,String ip)
+        {
+            Socket peer = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            peer.Connect(ip, 5050);
+            String req = "Deletee";
+            byte[] req_msg = Encoding.UTF8.GetBytes(req);
+            peer.Send(req_msg);
+            peer.Receive(req_msg);
+            if (Encoding.UTF8.GetString(req_msg).Equals("File Na"))
+            {
+                byte[] msg = Encoding.UTF8.GetBytes(fName);
+                int fn_len = msg.Length;
+                peer.Send(Encoding.UTF8.GetBytes(fn_len.ToString()));
+                peer.Send(msg);
+                byte[] b = new byte[2];
+                int recv = peer.Receive(b);
+                client_socket.Send(b);
+            }
+           
         }
         public void retriveFile(Socket client_socket,String fName,String ip)
         {
@@ -97,9 +119,7 @@ namespace Server_Application
                 peer.Send(msg);
                 byte[] clientData = new byte[1024 * 5000];
                 int recv = peer.Receive(clientData);
-                MessageBox.Show("From Peer OK");
                 client_socket.Send(clientData);
-                MessageBox.Show("Sent to Client");
             }
         }
         public void receiveFile(Socket client_socket)
@@ -111,8 +131,7 @@ namespace Server_Application
                 client_socket.Send(msg);
                 byte[] clientData = new byte[1024 * 5000];
                 int recv_len = client_socket.Receive(clientData);
-                MessageBox.Show(recv_len.ToString());
-                /*OleDbCommand cmd = new OleDbCommand();
+                OleDbCommand cmd = new OleDbCommand();
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandText = "SELECT * FROM Status WHERE NOT ([Client Id]) = (?) ORDER BY ([Free Space]) DESC;";
                 cmd.Parameters.AddWithValue("@Client Id", clientid);
@@ -128,13 +147,12 @@ namespace Server_Application
                     free_sapce = reader.GetString(2);
                     if (mapclass.client_IP_map.ContainsKey(peer_id))
                     {
-                        MessageBox.Show(peer_id);
-                        IpAddress= mapclass.client_IP_map[peer_id];
+                        
                         break;
 
                     }
                 }
-                MessageBox.Show(IpAddress.ToString());*/
+   //             IpAddress = mapclass.client_IP_map[peer_id];
                 forward(clientData, "2", "100");
             }
             catch (Exception ae)
@@ -154,8 +172,6 @@ namespace Server_Application
                 Socket to_peer = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 IPAddress IpAddress = IPAddress.Parse("104.39.6.174");
                 to_peer.Connect(IpAddress, 5050);
-                if (to_peer.Connected)
-                    MessageBox.Show("CONNECTED TO PEER");
                 to_peer.Send(Encoding.UTF8.GetBytes("StoreRe"));
                 to_peer.Receive(b);
                 String t = Encoding.UTF8.GetString(b);
@@ -180,10 +196,8 @@ namespace Server_Application
                     n_free = n_free-buffer.Length;
                     cmd.Parameters.AddWithValue("@Free Space", n_free.ToString());
                     cmd.Parameters.AddWithValue("@Client Id", peer_id);
-                    MessageBox.Show("Server :Insert Successful");
                     
                 }
-                MessageBox.Show("EE");
             }
             catch(Exception ae)
             {

@@ -19,12 +19,13 @@ namespace Server_Application
 {
     public partial class Server : Form
     {
-       
+        String clientid;
         Thread t;
         String myIp=null;
         Socket server;
         Socket client_sock;
         string myHost = System.Net.Dns.GetHostName();
+        public static Dictionary<String, IPAddress> client_IP_map = new Dictionary<String, IPAddress>();
         public Server()
         {
             InitializeComponent();
@@ -40,7 +41,7 @@ namespace Server_Application
 
                 }
                 
-                MessageBox.Show(myIp);
+                MessageBox.Show("Server IP: "+ myIp+ "\nClick OK to Start Listening " );
                 IPEndPoint ip_end = new IPEndPoint(IPAddress.Parse(myIp), 8080);
                 server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
                 server.Bind(ip_end);
@@ -58,7 +59,7 @@ namespace Server_Application
             }
         catch(Exception we)
             {
-                MessageBox.Show(we.Message+"exc");
+                //MessageBox.Show(we.Message+"exc");
             }
         }
         

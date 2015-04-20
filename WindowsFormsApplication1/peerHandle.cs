@@ -38,17 +38,17 @@ namespace Demiguise
         {
             try
             {
-              /*  for (int i = 0; i <= System.Net.Dns.GetHostEntry(myHost).AddressList.Length - 1; i++)
+               for (int i = 0; i <= System.Net.Dns.GetHostEntry(myHost).AddressList.Length - 1; i++)
                 {
                     if (System.Net.Dns.GetHostEntry(myHost).AddressList[i].IsIPv6LinkLocal == false)
                     {
                         myIp = System.Net.Dns.GetHostEntry(myHost).AddressList[i].ToString();
-                        MessageBox.Show(myIp);
+                   //     MessageBox.Show(myIp);
                     }
 
-                }*/
-                myIp = System.Net.Dns.GetHostEntry(myHost).AddressList[2].ToString();
-                MessageBox.Show(myIp);
+                }
+//                myIp = System.Net.Dns.GetHostEntry(myHost).AddressList[2].ToString();
+               // MessageBox.Show(myIp);
                 IPEndPoint ip_end = new IPEndPoint(IPAddress.Parse(myIp), 5050);
                 peer_req = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
                 peer_req.Bind(ip_end);
@@ -65,8 +65,8 @@ namespace Demiguise
                     if (Encoding.UTF8.GetString(msg).Equals("StoreRe"))
                     {
                         MessageBox.Show("peer_running");
-                        peer_req.Send(Encoding.UTF8.GetBytes("OK To Send"));
-                        recv = peer_req.Receive(data);
+                        peer_handle.Send(Encoding.UTF8.GetBytes("OK To Send"));
+                        recv = peer_handle.Receive(data);
                         Read(data, recv);
 
                         String rep = "OK";
@@ -76,8 +76,8 @@ namespace Demiguise
                     }
                     else if (Encoding.UTF8.GetString(msg).Equals("Retrive"))
                     {
-                        peer_req.Send(Encoding.UTF8.GetBytes("File Name"));
-                        recv = peer_req.Receive(msg);
+                        peer_handle.Send(Encoding.UTF8.GetBytes("File Na"));
+                        recv = peer_handle.Receive(msg);
                         String fName = Encoding.UTF8.GetString(msg);
                         byte[] filename = Encoding.UTF8.GetBytes(fName);
                         String fPath = @"C:\Users\pragathi\DGE\" +fName;
@@ -91,11 +91,33 @@ namespace Demiguise
                         MessageBox.Show("Data Sent");
 
                     }
+                    else if (Encoding.UTF8.GetString(msg).Equals("Deletee"))
+                    {
+                        peer_handle.Send(Encoding.UTF8.GetBytes("File Na"));
+                        recv = peer_handle.Receive(msg);
+                        String fName = Encoding.UTF8.GetString(msg);
+                        byte[] filename = Encoding.UTF8.GetBytes(fName);
+                        String fPath = @"C:\Users\pragathi\DGE\" + fName;
+                        byte[] b = new byte[2];
+                        if(File.Exists(fPath))
+                        {
+                            File.Delete(fPath);
+                            b = Encoding.UTF8.GetBytes("OK");
+                            peer_handle.Send(b);
+
+                        }
+                        else
+                        {
+                            b = Encoding.UTF8.GetBytes("NO");
+                            peer_handle.Send(b);
+                            
+                        }
+                    }
                 }
             }
             catch(Exception ae)
             {
-                MessageBox.Show("Peer Handler: " + ae.Message);
+                //MessageBox.Show("Peer Handler: " + ae.Message);
             }
         }
         public void Read(byte[] buff, int recv_len)
