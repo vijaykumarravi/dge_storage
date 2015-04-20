@@ -70,6 +70,11 @@ namespace Server_Application
         {
            MessageBox.Show("Listening");
         }
+
+        private void Server_Load(object sender, EventArgs e)
+        {
+
+        }
     }
 }
 
