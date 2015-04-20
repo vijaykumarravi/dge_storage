@@ -62,7 +62,7 @@ namespace Demiguise
                     if (Encoding.UTF8.GetString(msg).Equals("StoreRe"))
                     {
                         MessageBox.Show("peer_running");
-                        peer_req.Send(Encoding.UTF8.GetBytes("OK To Send"));
+                        peer_req.Send(Encoding.UTF8.GetBytes("OK To S"));
                         recv = peer_req.Receive(data);
                         Read(data, recv);
                         String rep = "OK";
@@ -72,6 +72,7 @@ namespace Demiguise
                     }
                     else if (Encoding.UTF8.GetString(msg).Equals("Retrive"))
                     {
+                        MessageBox.Show("peer_running");
                         peer_req.Send(Encoding.UTF8.GetBytes("File Name"));
                         recv = peer_req.Receive(msg);
                         String fName = Encoding.UTF8.GetString(msg);

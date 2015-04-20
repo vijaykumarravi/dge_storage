@@ -231,27 +231,34 @@ namespace WindowsFormsApplication1
         private void button6_Click(object sender, EventArgs e)
         {
             String req = "Retrive";
-            
-            if(textBox1.Text==null)
-            {
-                MessageBox.Show("Select a file name from list of files");
-            }
-            byte[] req_msg = Encoding.UTF8.GetBytes(req);
-            byte[] fileName = Encoding.UTF8.GetBytes(textBox1.Text);
-            byte[] msg = new byte[7 + fileName.Length];
-            req_msg.CopyTo(msg, 0);
-            fileName.CopyTo(msg,7);
-            client_sock.Send(msg);
-            int recv_le = client_sock.Receive(msg);
-            String repl = Encoding.UTF8.GetString(msg, 0, recv_le);
 
-            if (repl.Equals("Wait"))
+            if (textBox1.Text != null)
             {
-                MessageBox.Show("File being retrived");
+
+                byte[] req_msg = Encoding.UTF8.GetBytes(req);
+                byte[] fileName = Encoding.UTF8.GetBytes(textBox1.Text);
+                byte[] msg = new byte[7 + fileName.Length];
+                req_msg.CopyTo(msg, 0);
+                fileName.CopyTo(msg, 7);
+                client_sock.Send(msg);
+                int recv_le = client_sock.Receive(msg);
+                String repl = Encoding.UTF8.GetString(msg, 0, recv_le);
+                byte[] data = new byte[500 * 1000];
+                if (repl.Equals("Waitttt"))
+                {
+                    MessageBox.Show("File being retrived");
+                    client_sock.Receive(data);
+                    MessageBox.Show("Read Successful");
+                    Read(data, data.Length);
+                }
+                else
+                {
+                    MessageBox.Show("File not found");
+                }
             }
             else
             {
-                MessageBox.Show("File not found");
+                MessageBox.Show("Select a file name from list of files");
             }
         }
     }
