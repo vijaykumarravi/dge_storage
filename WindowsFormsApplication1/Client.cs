@@ -36,7 +36,7 @@ namespace WindowsFormsApplication1
         peerHandle peer_ob;
         public Client()
         {
-            clientid = "1";
+            clientid = "2";
             InitializeComponent();
             peer_ob = new peerHandle();
             peer_ob.start();
