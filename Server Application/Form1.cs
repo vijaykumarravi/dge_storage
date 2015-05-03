@@ -19,13 +19,12 @@ namespace Server_Application
 {
     public partial class Server : Form
     {
-        String clientid;
+       
         Thread t;
         String myIp=null;
         Socket server;
         Socket client_sock;
         string myHost = System.Net.Dns.GetHostName();
-        public static Dictionary<String, IPAddress> client_IP_map = new Dictionary<String, IPAddress>();
         public Server()
         {
             InitializeComponent();
@@ -37,11 +36,12 @@ namespace Server_Application
                     if (System.Net.Dns.GetHostEntry(myHost).AddressList[i].IsIPv6LinkLocal == false)
                     {
                         myIp = System.Net.Dns.GetHostEntry(myHost).AddressList[i].ToString();
+                        break;
                     }
 
                 }
                 
-                MessageBox.Show("Server IP: "+ myIp+ "\nClick OK to Start Listening " );
+                MessageBox.Show("Server IP:" + myIp);
                 IPEndPoint ip_end = new IPEndPoint(IPAddress.Parse(myIp), 8080);
                 server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
                 server.Bind(ip_end);
@@ -59,7 +59,7 @@ namespace Server_Application
             }
         catch(Exception we)
             {
-                //MessageBox.Show(we.Message+"exc");
+               // MessageBox.Show(we.Message+"exc");
             }
         }
         

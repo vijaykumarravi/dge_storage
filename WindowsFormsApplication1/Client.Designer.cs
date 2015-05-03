@@ -35,7 +35,6 @@ namespace WindowsFormsApplication1
             this.open_file_button = new System.Windows.Forms.Button();
             this.button3 = new System.Windows.Forms.Button();
             this.ofd = new System.Windows.Forms.OpenFileDialog();
-            this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.button2 = new System.Windows.Forms.Button();
             this.textBox2 = new System.Windows.Forms.TextBox();
             this.label1 = new System.Windows.Forms.Label();
@@ -86,14 +85,6 @@ namespace WindowsFormsApplication1
             // ofd
             // 
             this.ofd.FileName = " ";
-            // 
-            // statusStrip1
-            // 
-            this.statusStrip1.Location = new System.Drawing.Point(0, 257);
-            this.statusStrip1.Name = "statusStrip1";
-            this.statusStrip1.Size = new System.Drawing.Size(347, 22);
-            this.statusStrip1.TabIndex = 4;
-            this.statusStrip1.Text = "statusStrip1";
             // 
             // button2
             // 
@@ -173,7 +164,6 @@ namespace WindowsFormsApplication1
             this.Controls.Add(this.label1);
             this.Controls.Add(this.textBox2);
             this.Controls.Add(this.button2);
-            this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.button3);
             this.Controls.Add(this.open_file_button);
             this.Controls.Add(this.textBox1);
@@ -192,7 +182,6 @@ namespace WindowsFormsApplication1
         private System.Windows.Forms.Button open_file_button;
         private System.Windows.Forms.Button button3;
         private System.Windows.Forms.OpenFileDialog ofd;
-        private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.Button button2;
         private System.Windows.Forms.TextBox textBox2;
         private System.Windows.Forms.Label label1;

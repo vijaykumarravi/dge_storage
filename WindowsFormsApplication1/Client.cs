@@ -14,14 +14,16 @@ using System.Data.OleDb;
 using Demiguise;
 using System.Threading;
 
+
 namespace WindowsFormsApplication1
 {
     
        
-    //sdasdasd
+   
     
     public partial class Client : Form
     {
+   
         public String fName;
         private String clientid;
         public String s_fName;
@@ -32,36 +34,42 @@ namespace WindowsFormsApplication1
         int flag =0;
         FileList flform;
         String retFName;
-              
+        Boolean send_request;
+        Boolean connect;
         peerHandle peer_ob;
         public Client()
         {
-            clientid = "1";
-            retFName = null;
-            InitializeComponent();
-            peer_ob = new peerHandle();
-            peer_ob.start();
-            OpenFileDialog ofd = new OpenFileDialog();
-            StatusStrip statusStrip1 = new StatusStrip();
-            statusStrip1.Text = "Select a File";
-            statusStrip1.Refresh();
-            client_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-            cnn = new OleDbConnection();
-            
+            try
+            {
+                send_request = false;
+                connect = false;
+                clientid = "5";
+                retFName = null;
+                InitializeComponent();
+                peer_ob = new peerHandle();
+                peer_ob.start();
+                OpenFileDialog ofd = new OpenFileDialog();
+                StatusStrip statusStrip1 = new StatusStrip();
+                statusStrip1.Text = "Select a File";
+                statusStrip1.Refresh();
+                client_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+                cnn = new OleDbConnection();
+            }
+            catch(Exception ae)
+            {
+                MessageBox.Show(ae.Message);
+            }
         }
         
         
         
     public void Read(byte[] buff, int recv_len)
         {
-
+            
             int fileNameLen = 1;
             string fileName;
             string receivedPath = null;
             String content = String.Empty;
-            //StateObject state = (StateObject)ar.AsyncState;
-            //StateObject state = ob;
-            //Socket handler = state.workSocket;
             int bytesRead = recv_len;
             if (bytesRead > 0)
             {
@@ -69,7 +77,7 @@ namespace WindowsFormsApplication1
                 {
                     fileNameLen = BitConverter.ToInt32(buff, 0);
                     fileName = Encoding.UTF8.GetString(buff, 4, fileNameLen);
-                    receivedPath = @"E:\" + fileName;
+                    receivedPath = @"E:\DGE\"+fileName;
                     flag++;
                 }
 
@@ -104,7 +112,7 @@ namespace WindowsFormsApplication1
                 client_sock.Send(msg);
                 int recv_le = client_sock.Receive(msg);
                 String repl = Encoding.UTF8.GetString(msg, 0, recv_le);
-
+                send_request = true;
                 if(repl.Equals("Send th"))
                 {
                     MessageBox.Show("Select the file and click Send to Sore the File");
@@ -137,8 +145,7 @@ namespace WindowsFormsApplication1
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-            statusStrip1.Text = "File Selected";
-            statusStrip1.Refresh();
+           
         }
 
         private void button3_Click(object sender, EventArgs e)
@@ -147,7 +154,8 @@ namespace WindowsFormsApplication1
             {
                 //client_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 //client_sock.Connect(ip, 8080);
-               
+                if (send_request)
+                {
                     if (fName != null)
                     {
                         byte[] filename = Encoding.UTF8.GetBytes(s_fName);
@@ -160,7 +168,7 @@ namespace WindowsFormsApplication1
                         client_sock.Send(data);
                         String current_dir = System.Environment.CurrentDirectory;
                         Console.WriteLine(current_dir);
-                        cnn.ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Vijay\Documents\GitHub\dge_storage\WindowsFormsApplication1\client_db.mdb";
+                        cnn.ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Vijay Kumar Ravi\Documents\GitHub\dge_storage\WindowsFormsApplication1\client_db.mdb";
 
                         // DATABASE//
                         OleDbCommand cmd = new OleDbCommand();
@@ -170,14 +178,16 @@ namespace WindowsFormsApplication1
                         cmd.Connection = cnn;
                         cnn.Open();
                         cmd.ExecuteNonQuery();
-     //                   MessageBox.Show("Insert Successful");
-                       
+                        //                   MessageBox.Show("Insert Successful");
+
                     }
                     else
                         MessageBox.Show("Select a File");
 
                 }
-            
+                else
+                    MessageBox.Show("Click Request to Store First");
+            }
 
             catch (Exception s)
             {
@@ -203,6 +213,7 @@ namespace WindowsFormsApplication1
                 byte[] b = new byte[10];
                 client_sock.Receive(b);
                 MessageBox.Show(client_sock.Connected ? "Connected to the Server" : "Server Not Listening");
+                connect = client_sock.Connected;
        
             }
             catch(SocketException ae)
@@ -289,7 +300,7 @@ namespace WindowsFormsApplication1
                 }
                 else
                 {
-                    MessageBox.Show("File not found");
+                    MessageBox.Show("File Deleted");
                 }
             }
             else
