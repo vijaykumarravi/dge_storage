@@ -41,6 +41,7 @@ namespace WindowsFormsApplication1
         {
             try
             {
+                
                 send_request = false;
                 connect = false;
                 clientid = "5";
@@ -49,11 +50,12 @@ namespace WindowsFormsApplication1
                 peer_ob = new peerHandle();
                 peer_ob.start();
                 OpenFileDialog ofd = new OpenFileDialog();
-                StatusStrip statusStrip1 = new StatusStrip();
-                statusStrip1.Text = "Select a File";
-                statusStrip1.Refresh();
                 client_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 cnn = new OleDbConnection();
+                cnn.ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Vijay Kumar Ravi\Documents\GitHub\dge_storage\WindowsFormsApplication1\client_db.mdb";
+                textBox1.Text = null;
+                textBox2.Text = null;
+                ip = null;
             }
             catch(Exception ae)
             {
@@ -106,20 +108,26 @@ namespace WindowsFormsApplication1
         {
             try
             {
-                
-                String req = "StoreRe";
-                byte[] msg = Encoding.UTF8.GetBytes(req);
-                client_sock.Send(msg);
-                int recv_le = client_sock.Receive(msg);
-                String repl = Encoding.UTF8.GetString(msg, 0, recv_le);
-                send_request = true;
-                if(repl.Equals("Send th"))
+                if (connect)
                 {
-                    MessageBox.Show("Select the file and click Send to Sore the File");
+                    String req = "StoreRe";
+                    byte[] msg = Encoding.UTF8.GetBytes(req);
+                    client_sock.Send(msg);
+                    int recv_le = client_sock.Receive(msg);
+                    String repl = Encoding.UTF8.GetString(msg, 0, recv_le);
+                    send_request = true;
+                    if (repl.Equals("Send th"))
+                    {
+                        MessageBox.Show("Select the file and click Send to Sore the File");
+                    }
+                    else
+                    {
+                        MessageBox.Show("Server denied the request");
+                    }
                 }
                 else
                 {
-                    MessageBox.Show("Server denied the request");
+                    MessageBox.Show("Connect to the Server First");
                 }
             }
             catch(Exception ae)
@@ -152,9 +160,7 @@ namespace WindowsFormsApplication1
         {
             try
             {
-                //client_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-                //client_sock.Connect(ip, 8080);
-                if (send_request)
+                if (send_request & connect)
                 {
                     if (fName != null)
                     {
@@ -168,7 +174,6 @@ namespace WindowsFormsApplication1
                         client_sock.Send(data);
                         String current_dir = System.Environment.CurrentDirectory;
                         Console.WriteLine(current_dir);
-                        cnn.ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Vijay Kumar Ravi\Documents\GitHub\dge_storage\WindowsFormsApplication1\client_db.mdb";
 
                         // DATABASE//
                         OleDbCommand cmd = new OleDbCommand();
@@ -186,7 +191,13 @@ namespace WindowsFormsApplication1
 
                 }
                 else
-                    MessageBox.Show("Click Request to Store First");
+                {
+                    if (connect)
+                        MessageBox.Show("Click Request to Store First");
+                    else
+                        MessageBox.Show("Connect to the Server First");
+                }
+
             }
 
             catch (Exception s)
@@ -206,15 +217,21 @@ namespace WindowsFormsApplication1
             try
             {
 
-
+                
                 ip = textBox2.Text;
-                client_sock.Connect(ip, 8080);
-                client_sock.Send(Encoding.UTF8.GetBytes(clientid));
-                byte[] b = new byte[10];
-                client_sock.Receive(b);
-                MessageBox.Show(client_sock.Connected ? "Connected to the Server" : "Server Not Listening");
-                connect = client_sock.Connected;
-       
+                if (String.IsNullOrEmpty(textBox2.Text) || String.IsNullOrWhiteSpace(textBox2.Text))
+                {
+                    MessageBox.Show("Enter Server's IP");
+                }
+                else
+                {
+                    client_sock.Connect(ip, 8080);
+                    client_sock.Send(Encoding.UTF8.GetBytes(clientid));
+                    byte[] b = new byte[10];
+                    client_sock.Receive(b);
+                    MessageBox.Show(client_sock.Connected ? "Connected to the Server" : "Server Not Listening");
+                    connect = client_sock.Connected;
+                }
             }
             catch(SocketException ae)
             {
@@ -244,8 +261,7 @@ namespace WindowsFormsApplication1
         private void button6_Click(object sender, EventArgs e)
         {
             String req = "Retrive";
-            MessageBox.Show(retFName);
-            if (retFName != null)
+            if (retFName != null & connect)
             {
 
                 byte[] req_msg = Encoding.UTF8.GetBytes(req);
@@ -272,14 +288,17 @@ namespace WindowsFormsApplication1
             }
             else
             {
-                MessageBox.Show("Select a file name from list of files");
+                if (connect)
+                    MessageBox.Show("Select a file name from list of files");
+                else
+                    MessageBox.Show("Connect to the Server First");
             }
         }
 
         private void button7_Click(object sender, EventArgs e)
         {
             String req = "Deletee";
-            if (retFName != null)
+            if (retFName != null && connect)
             {
 
                 byte[] req_msg = Encoding.UTF8.GetBytes(req);
@@ -293,19 +312,27 @@ namespace WindowsFormsApplication1
                 byte[] data = new byte[500 * 1000];
                 if (repl.Equals("Waitttt"))
                 {
-                    MessageBox.Show("File being retrived");
-                    client_sock.Receive(data);
-                    MessageBox.Show("Read Successful");
-                    Read(data, data.Length);
                 }
+
                 else
                 {
                     MessageBox.Show("File Deleted");
+                    OleDbCommand cmd = new OleDbCommand();
+                    cmd.CommandType = CommandType.Text;
+                    cmd.CommandText = "DELETE * FROM client_table  WHERE [File Name] = ? ;";
+                    cmd.Parameters.AddWithValue("@File Name", textBox1.Text);
+                    cmd.Connection = cnn;
+                    cnn.Open();
+                    cmd.ExecuteNonQuery();
+                        
                 }
             }
             else
             {
-                MessageBox.Show("Select a file name from list of files");
+                if (connect)
+                    MessageBox.Show("Select a file name from list of files");
+                else
+                    MessageBox.Show("Connect to the Server first");
             }
         }
     }

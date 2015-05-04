@@ -42,6 +42,12 @@ namespace Server_Application
                 }
                 
                 MessageBox.Show("Server IP:" + myIp);
+            }
+            catch( Exception re)
+            {
+
+            }
+            try{
                 IPEndPoint ip_end = new IPEndPoint(IPAddress.Parse(myIp), 8080);
                 server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
                 server.Bind(ip_end);
@@ -59,7 +65,7 @@ namespace Server_Application
             }
         catch(Exception we)
             {
-               // MessageBox.Show(we.Message+"exc");
+              //  MessageBox.Show(we.Message+"exc");
             }
         }
         
