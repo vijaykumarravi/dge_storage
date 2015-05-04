@@ -37,17 +37,13 @@ namespace Server_Application
                     {
                         myIp = System.Net.Dns.GetHostEntry(myHost).AddressList[i].ToString();
                         break;
+                        
                     }
 
                 }
                 
                 MessageBox.Show("Server IP:" + myIp);
-            }
-            catch( Exception re)
-            {
-
-            }
-            try{
+            
                 IPEndPoint ip_end = new IPEndPoint(IPAddress.Parse(myIp), 8080);
                 server = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
                 server.Bind(ip_end);

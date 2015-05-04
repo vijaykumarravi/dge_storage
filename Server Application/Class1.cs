@@ -149,7 +149,7 @@ namespace Server_Application
                          rd.Read();
                          String ip_peer = rd.GetString(3);
                          rd.Close();
-                         //deleteFile(client_socket, fName, ip_peer);
+                         deleteFile(client_socket, fName, ip_peer);
                          cmd = new OleDbCommand();
                          cmd.Connection = conn;
                          cmd.CommandText = "DELETE * FROM Server_Table  WHERE [File Name] = ? ;";
@@ -219,6 +219,7 @@ namespace Server_Application
         {
             try
             {
+                MessageBox.Show("Inside Receive FIle1");
                 String reply = "Send the file";
                 byte[] msg = Encoding.UTF8.GetBytes(reply);
                 client_socket.Send(msg);
@@ -226,18 +227,17 @@ namespace Server_Application
                 int recv_len = client_socket.Receive(clientData);
                 cnn = new OleDbConnection();
                 cnn.ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Vijay Kumar Ravi\Documents\GitHub\dge_storage\Server Application\Server_Database.mdb";
-
+                MessageBox.Show("Inside Receive FIle2");
                 OleDbCommand cmd = new OleDbCommand();
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandText = "SELECT * FROM Status ORDER BY ([Free Space]) DESC;";
-                //cmd.Parameters.AddWithValue("@Client Id", clientid);
+                // Load Balancing
                 cmd.Connection = cnn;
                 cnn.Open();
                 OleDbDataReader reader = cmd.ExecuteReader();
                 String peer_id = null;
                 String free_sapce = null;
                 String ip_peer = null;
-                //IPAddress IpAddress = null;
                 while (reader.Read())
                 {
                     peer_id = reader.GetString(1);
@@ -250,9 +250,9 @@ namespace Server_Application
 
                     }
                 }
-                //             IpAddress = mapclass.client_IP_map[peer_id];
                 MessageBox.Show(ip_peer);
                 forward(clientData, ip_peer, free_sapce, peer_id);
+                cnn.Close();
             }
             catch (Exception ae)
             {
@@ -285,6 +285,8 @@ namespace Server_Application
                     fileName = Encoding.UTF8.GetString(buffer, 4, fileNameLen);
                     Double n_free = Double.Parse(free_space);
                     OleDbCommand cmd = new OleDbCommand();
+                    cnn = new OleDbConnection();
+                    cnn.ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Vijay Kumar Ravi\Documents\GitHub\dge_storage\Server Application\Server_Database.mdb";
                     cmd.CommandType = CommandType.Text;
                     cmd.CommandText = "INSERT  INTO Server_Table ([ClientId],[File Name],[Time Stamp],[EndClient]) VALUES (?,?,?,?) ;";
                     cmd.Parameters.AddWithValue("@ClientId", clientid);

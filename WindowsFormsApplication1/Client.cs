@@ -67,7 +67,7 @@ namespace WindowsFormsApplication1
         
     public void Read(byte[] buff, int recv_len)
         {
-            
+            MessageBox.Show("Client: Retriving File");
             int fileNameLen = 1;
             string fileName;
             string receivedPath = null;
@@ -79,7 +79,7 @@ namespace WindowsFormsApplication1
                 {
                     fileNameLen = BitConverter.ToInt32(buff, 0);
                     fileName = Encoding.UTF8.GetString(buff, 4, fileNameLen);
-                    receivedPath = @"E:\DGE\"+fileName;
+                    receivedPath = @"C:\Users\Vijay Kumar Ravi\Documents\GitHub\Stored Files\" + fileName;
                     flag++;
                 }
 
@@ -172,12 +172,9 @@ namespace WindowsFormsApplication1
                         filename.CopyTo(data, 4);
                         fileData.CopyTo(data, 4 + s_fName.Length);
                         client_sock.Send(data);
-                        String current_dir = System.Environment.CurrentDirectory;
-                        Console.WriteLine(current_dir);
                         byte [] repl = new byte[7];
                         client_sock.Receive(repl);
-                        if (Encoding.UTF8.GetString(repl).Equals("Success"))
-                        {
+                        MessageBox.Show(Encoding.UTF8.GetString(repl));
                             // DATABASE//
                             OleDbCommand cmd = new OleDbCommand();
                             cmd.CommandType = CommandType.Text;
@@ -188,12 +185,7 @@ namespace WindowsFormsApplication1
                             cmd.ExecuteNonQuery();
                             //                   MessageBox.Show("Insert Successful");
                             MessageBox.Show("Successfully Stored");
-                        }
-                        else
-                        {
-                            MessageBox.Show("Unsuccessful");
-                        }
-
+                       
                     }
                     else
                         MessageBox.Show("Select a File");

@@ -80,7 +80,7 @@ namespace Demiguise
                         recv = peer_handle.Receive(msg);
                         String fName = Encoding.UTF8.GetString(msg);
                         byte[] filename = Encoding.UTF8.GetBytes(fName);
-                        String fPath = @"C:\Users\pragathi\DGE\" +fName;
+                        String fPath = @"C:\Users\Vijay Kumar Ravi\Documents\GitHub\Peer Files\" + fName;
                         byte[] fileData = File.ReadAllBytes(fPath);
                         byte[] send_data = new byte[4 + fName.Length + fileData.Length];
                         byte[] fileNameLen = BitConverter.GetBytes(fName.Length);
@@ -97,7 +97,7 @@ namespace Demiguise
                         recv = peer_handle.Receive(msg);
                         String fName = Encoding.UTF8.GetString(msg);
                         byte[] filename = Encoding.UTF8.GetBytes(fName);
-                        String fPath = @"C:\Users\pragathi\DGE\" + fName;
+                        String fPath = @"C:\Users\Vijay Kumar Ravi\Documents\GitHub\Peer Files\" + fName;
                         byte[] b = new byte[2];
                         if(File.Exists(fPath))
                         {
@@ -137,7 +137,7 @@ namespace Demiguise
                     MessageBox.Show("f");
                     fileNameLen = BitConverter.ToInt32(buff, 0);
                     fileName = Encoding.UTF8.GetString(buff, 4, fileNameLen);
-                    receivedPath = @"C:\Users\pragathi\DGE\" + fileName;
+                    receivedPath = @"C:\Users\Vijay Kumar Ravi\Documents\GitHub\Peer Files\" + fileName;
                     flag++;
                 }
 
