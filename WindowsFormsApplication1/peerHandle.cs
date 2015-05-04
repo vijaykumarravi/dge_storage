@@ -61,7 +61,7 @@ namespace Demiguise
                     peer_handle = peer_req.Accept();
                     byte[] msg = new byte[7];
                     int recv = peer_handle.Receive(msg);
-                    MessageBox.Show(Encoding.UTF8.GetString(msg));
+                    
                     if (Encoding.UTF8.GetString(msg).Equals("StoreRe"))
                     {
                         MessageBox.Show("peer_running");
@@ -76,26 +76,36 @@ namespace Demiguise
                     }
                     else if (Encoding.UTF8.GetString(msg).Equals("Retrive"))
                     {
+                        byte[] fn_len = new byte[4];
                         peer_handle.Send(Encoding.UTF8.GetBytes("File Na"));
-                        recv = peer_handle.Receive(msg);
-                        String fName = Encoding.UTF8.GetString(msg);
+                        peer_handle.Receive(fn_len);
+                        int len = int.Parse(Encoding.UTF8.GetString(fn_len));
+                        byte[] msg1 = new byte[len];
+                        peer_handle.Receive(msg1);
+                        String fName = Encoding.UTF8.GetString(msg1);
                         byte[] filename = Encoding.UTF8.GetBytes(fName);
-                        String fPath = @"C:\Users\Vijay Kumar Ravi\Documents\GitHub\Peer Files\" + fName;
+                        String fPath = @"C:\Users\Vijay Kumar Ravi\Documents\GitHub\Peer Files\" +fName;
                         byte[] fileData = File.ReadAllBytes(fPath);
                         byte[] send_data = new byte[4 + fName.Length + fileData.Length];
                         byte[] fileNameLen = BitConverter.GetBytes(fName.Length);
                         fileNameLen.CopyTo(send_data, 0);
                         filename.CopyTo(send_data, 4);
                         fileData.CopyTo(send_data, 4 + fName.Length);
+                        MessageBox.Show(fName);
                         peer_handle.Send(send_data);
                         MessageBox.Show("Data Sent");
 
                     }
                     else if (Encoding.UTF8.GetString(msg).Equals("Deletee"))
                     {
+                        MessageBox.Show("IN DELETE");
+                        byte[] fn_len = new byte[4];
                         peer_handle.Send(Encoding.UTF8.GetBytes("File Na"));
-                        recv = peer_handle.Receive(msg);
-                        String fName = Encoding.UTF8.GetString(msg);
+                        peer_handle.Receive(fn_len);
+                        int len = int.Parse(Encoding.UTF8.GetString(fn_len));
+                        byte[] msg1 = new byte[len];
+                        peer_handle.Receive(msg1);
+                        String fName = Encoding.UTF8.GetString(msg1);
                         byte[] filename = Encoding.UTF8.GetBytes(fName);
                         String fPath = @"C:\Users\Vijay Kumar Ravi\Documents\GitHub\Peer Files\" + fName;
                         byte[] b = new byte[2];
@@ -137,7 +147,7 @@ namespace Demiguise
                     MessageBox.Show("f");
                     fileNameLen = BitConverter.ToInt32(buff, 0);
                     fileName = Encoding.UTF8.GetString(buff, 4, fileNameLen);
-                    receivedPath = @"C:\Users\Vijay Kumar Ravi\Documents\GitHub\Peer Files\" + fileName;
+                    receivedPath = @"C:\Users\Vijay Kumar Ravi\Documents\GitHub\Stored Files\" + fileName;
                     flag++;
                 }
 
