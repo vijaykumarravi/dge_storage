@@ -44,7 +44,7 @@ namespace WindowsFormsApplication1
                 
                 send_request = false;
                 connect = false;
-                clientid = "5";
+                clientid = "2";
                 retFName = null;
                 InitializeComponent();
                 peer_ob = new peerHandle();
@@ -52,7 +52,7 @@ namespace WindowsFormsApplication1
                 OpenFileDialog ofd = new OpenFileDialog();
                 client_sock = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 cnn = new OleDbConnection();
-                cnn.ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Vijay Kumar Ravi\Documents\GitHub\dge_storage\WindowsFormsApplication1\client_db.mdb";
+                cnn.ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\pragathi\Documents\GitHub\dge_storage\WindowsFormsApplication1\client_db.mdb";
                 textBox1.Text = null;
                 textBox2.Text = null;
                 ip = null;
@@ -79,7 +79,7 @@ namespace WindowsFormsApplication1
                 {
                     fileNameLen = BitConverter.ToInt32(buff, 0);
                     fileName = Encoding.UTF8.GetString(buff, 4, fileNameLen);
-                    receivedPath = @"E:\DGE\"+fileName;
+                    receivedPath = @"C:\Users\pragathi\Documents\GitHub\Stored Files\" + fileName;
                     flag++;
                 }
 
