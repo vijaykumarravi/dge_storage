@@ -174,16 +174,25 @@ namespace WindowsFormsApplication1
                         client_sock.Send(data);
                         String current_dir = System.Environment.CurrentDirectory;
                         Console.WriteLine(current_dir);
-
-                        // DATABASE//
-                        OleDbCommand cmd = new OleDbCommand();
-                        cmd.CommandType = CommandType.Text;
-                        cmd.CommandText = "INSERT  INTO client_table ([File Name]) VALUES (?) ;";
-                        cmd.Parameters.AddWithValue("@File Name", s_fName);
-                        cmd.Connection = cnn;
-                        cnn.Open();
-                        cmd.ExecuteNonQuery();
-                        //                   MessageBox.Show("Insert Successful");
+                        byte [] repl = new byte[7];
+                        client_sock.Receive(repl);
+                        if (Encoding.UTF8.GetString(repl).Equals("Success"))
+                        {
+                            // DATABASE//
+                            OleDbCommand cmd = new OleDbCommand();
+                            cmd.CommandType = CommandType.Text;
+                            cmd.CommandText = "INSERT  INTO client_table ([File Name]) VALUES (?) ;";
+                            cmd.Parameters.AddWithValue("@File Name", s_fName);
+                            cmd.Connection = cnn;
+                            cnn.Open();
+                            cmd.ExecuteNonQuery();
+                            //                   MessageBox.Show("Insert Successful");
+                            MessageBox.Show("Successfully Stored");
+                        }
+                        else
+                        {
+                            MessageBox.Show("Unsuccessful");
+                        }
 
                     }
                     else
