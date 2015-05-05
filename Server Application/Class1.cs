@@ -82,7 +82,10 @@ namespace Server_Application
                      
                     
                 }
+                cnn.Close();
                 //MesssageBox.Show("Client ID FROM SERVER:" + clientid);
+                while(true)
+                { 
                 byte[] message = new byte[100];
                 int recv_len = client_socket.Receive(message);
                 if (recv_len == 7)
@@ -98,65 +101,73 @@ namespace Server_Application
                 {
                     String msg = Encoding.UTF8.GetString(message, 0, 7);
                     String fName = Encoding.UTF8.GetString(message,7,recv_len-7);
-                    
-                     if(msg.Equals("Retrive"))
-                        {
-                            byte[] b = new byte[10];
-                            cmd = new OleDbCommand();
-                            cmd.CommandText = "SELECT * FROM Server_Table  WHERE [File Name] = ?;";
-                            cmd.Parameters.AddWithValue("@File Name", fName);
-                            cmd.Connection = cnn;
-                            cmd.ExecuteNonQuery();
-                            MessageBox.Show(fName);
-                            OleDbDataReader read = cmd.ExecuteReader();
-                            read.Read();
-                            String peer_id = read.GetString(4);
-                            read.Close();
-                            OleDbConnection conn = new OleDbConnection();
-                            conn.ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Vijay Kumar Ravi\Documents\GitHub\dge_storage\Server Application\Server_Database.mdb";
-                            cmd = new OleDbCommand();
-                            cmd.CommandText = "SELECT * FROM Status  WHERE [Client Id] = ?;";
-                            cmd.Parameters.AddWithValue("@Client Id", peer_id);
-                            cmd.Connection = conn;
-                            conn.Open();
-                            OleDbDataReader rd = cmd.ExecuteReader();
-                            rd.Read();
-                            String ip_peer = rd.GetString(3);
-                            rd.Close();
-                            conn.Close();
-                            retriveFile(client_socket,fName,ip_peer);
-                            
-                        }
-                     else
-                     {
-                         cmd = new OleDbCommand();
-                         cmd.CommandText = "SELECT * FROM Server_Table  WHERE [File Name] = ?;";
-                         cmd.Parameters.AddWithValue("@File Name", fName);
-                         cmd.Connection = cnn;
-                         cmd.ExecuteNonQuery();
-                         OleDbDataReader read = cmd.ExecuteReader();
-                         read.Read();
-                         String peer_id = read.GetString(4);
-                         read.Close();
-                         OleDbConnection conn = new OleDbConnection();
-                         conn.ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Vijay Kumar Ravi\Documents\GitHub\dge_storage\Server Application\Server_Database.mdb";
-                         cmd = new OleDbCommand();
-                         cmd.CommandText = "SELECT * FROM Status  WHERE [Client Id] = ?;";
-                         cmd.Parameters.AddWithValue("@Client Id", peer_id);
-                         cmd.Connection = conn;
-                         conn.Open();
-                         OleDbDataReader rd = cmd.ExecuteReader();
-                         rd.Read();
-                         String ip_peer = rd.GetString(3);
-                         rd.Close();
-                         deleteFile(client_socket, fName, ip_peer);
-                         cmd = new OleDbCommand();
-                         cmd.Connection = conn;
-                         cmd.CommandText = "DELETE * FROM Server_Table  WHERE [File Name] = ? ;";
-                         cmd.Parameters.AddWithValue("@File Name", fName);
-                         cmd.ExecuteNonQuery();
-                         conn.Close();
-                       
+
+                    if (msg.Equals("Retrive"))
+                    {
+                        cnn = new OleDbConnection();
+                        cnn.ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Vijay Kumar Ravi\Documents\GitHub\dge_storage\Server Application\Server_Database.mdb";
+                        byte[] b = new byte[10];
+                        cmd = new OleDbCommand();
+                        cmd.CommandText = "SELECT * FROM Server_Table  WHERE [File Name] = ?;";
+                        cmd.Parameters.AddWithValue("@File Name", fName);
+                        cmd.Connection = cnn;
+                        cnn.Open();
+                        cmd.ExecuteNonQuery();
+                        MessageBox.Show(fName);
+                        OleDbDataReader read = cmd.ExecuteReader();
+                        read.Read();
+                        String peer_id = read.GetString(4);
+                        read.Close();
+                        cnn.Close();
+                        OleDbConnection conn = new OleDbConnection();
+                        conn.ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Vijay Kumar Ravi\Documents\GitHub\dge_storage\Server Application\Server_Database.mdb";
+                        cmd = new OleDbCommand();
+                        cmd.CommandText = "SELECT * FROM Status  WHERE [Client Id] = ?;";
+                        cmd.Parameters.AddWithValue("@Client Id", peer_id);
+                        cmd.Connection = conn;
+                        conn.Open();
+                        OleDbDataReader rd = cmd.ExecuteReader();
+                        rd.Read();
+                        String ip_peer = rd.GetString(3);
+                        rd.Close();
+                        conn.Close();
+                        retriveFile(client_socket, fName, ip_peer);
+
+                    }
+                    else
+                    {
+                        cnn.ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Vijay Kumar Ravi\Documents\GitHub\dge_storage\Server Application\Server_Database.mdb";
+                        cmd = new OleDbCommand();
+                        cmd = new OleDbCommand();
+                        cmd.CommandText = "SELECT * FROM Server_Table  WHERE [File Name] = ?;";
+                        cmd.Parameters.AddWithValue("@File Name", fName);
+                        cnn.Open();
+                        cmd.Connection = cnn;
+                        cmd.ExecuteNonQuery();
+                        OleDbDataReader read = cmd.ExecuteReader();
+                        read.Read();
+                        String peer_id = read.GetString(4);
+                        read.Close();
+                        cnn.Close();
+                        OleDbConnection conn = new OleDbConnection();
+                        conn.ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Vijay Kumar Ravi\Documents\GitHub\dge_storage\Server Application\Server_Database.mdb";
+                        cmd = new OleDbCommand();
+                        cmd.CommandText = "SELECT * FROM Status  WHERE [Client Id] = ?;";
+                        cmd.Parameters.AddWithValue("@Client Id", peer_id);
+                        cmd.Connection = conn;
+                        conn.Open();
+                        OleDbDataReader rd = cmd.ExecuteReader();
+                        rd.Read();
+                        String ip_peer = rd.GetString(3);
+                        //rd.Close();
+                        deleteFile(client_socket, fName, ip_peer);
+                        cmd = new OleDbCommand();
+                        cmd.Connection = conn;
+                        cmd.CommandText = "DELETE * FROM Server_Table  WHERE [File Name] = ? ;";
+                        cmd.Parameters.AddWithValue("@File Name", fName);
+                        cmd.ExecuteNonQuery();
+                        conn.Close();
+                    }     
                      }
                 }
             }
@@ -166,11 +177,7 @@ namespace Server_Application
                 MessageBox.Show(e.Message.ToString());
                 MessageBox.Show(e.ToString());
             }
-            finally
-            {
-                cnn.Close();
-
-            }
+            
         }
         public void deleteFile(Socket client_socket,String fName,String ip)
         {
@@ -206,12 +213,23 @@ namespace Server_Application
             peer.Receive(req_msg);
             if (Encoding.UTF8.GetString(req_msg).Equals("File Na"))
             {
+                byte[] b = new byte[100];
                 byte[] msg = Encoding.UTF8.GetBytes(fName);
                 int fn_len = msg.Length;
                 peer.Send(Encoding.UTF8.GetBytes(fn_len.ToString()));
                 peer.Send(msg);
-                byte[] clientData = new byte[1024 * 5000];
-                int recv = peer.Receive(clientData);
+                peer.Receive(b); // Receive the Length of the Data
+                byte[] clientData = new byte[int.Parse(Encoding.UTF8.GetString(b))];
+                int totalbytesread = 0;
+                byte[] temp = new byte[8192];
+                while (totalbytesread < int.Parse(Encoding.UTF8.GetString(b)))
+                {
+                    int recv_len = client_socket.Receive(temp);
+                    Buffer.BlockCopy(temp, 0, clientData, totalbytesread, recv_len);
+                    totalbytesread += recv_len;
+
+                }
+                client_socket.Send(b);
                 client_socket.Send(clientData);
             }
         }
@@ -219,15 +237,25 @@ namespace Server_Application
         {
             try
             {
-                MessageBox.Show("Inside Receive FIle1");
+                byte [] b = new byte[1000];
                 String reply = "Send the file";
                 byte[] msg = Encoding.UTF8.GetBytes(reply);
                 client_socket.Send(msg);
-                byte[] clientData = new byte[1024 * 5000];
-                int recv_len = client_socket.Receive(clientData);
+                client_socket.Receive(b);
+                int len = int.Parse(Encoding.UTF8.GetString(b));
+                MessageBox.Show("FILE LENGTH"+len.ToString());
+                Byte [] clientData = new byte[len];
+                byte [] temp = new byte[8192];
+                int totalbytesread = 0;
+                while (totalbytesread < len)
+                {
+                    int recv_len = client_socket.Receive(temp);
+                    Buffer.BlockCopy(temp, 0, clientData, totalbytesread, recv_len);
+                    totalbytesread += recv_len;
+                    
+                }
                 cnn = new OleDbConnection();
                 cnn.ConnectionString = @"Provider=Microsoft.Jet.OLEDB.4.0;Data Source=C:\Users\Vijay Kumar Ravi\Documents\GitHub\dge_storage\Server Application\Server_Database.mdb";
-                MessageBox.Show("Inside Receive FIle2");
                 OleDbCommand cmd = new OleDbCommand();
                 cmd.CommandType = CommandType.Text;
                 cmd.CommandText = "SELECT * FROM Status ORDER BY ([Free Space]) DESC;";
@@ -251,7 +279,8 @@ namespace Server_Application
                     }
                 }
                 MessageBox.Show(ip_peer);
-                forward(clientData, ip_peer, free_sapce, peer_id);
+               forward(clientData, ip_peer, free_sapce, peer_id,len);
+                store(clientData, totalbytesread);
                 cnn.Close();
             }
             catch (Exception ae)
@@ -260,11 +289,10 @@ namespace Server_Application
             }
 
         }
-        public void forward(byte[] buffer, String ip_peer, String free_space, String peer_id)
+        public void forward(byte[] buffer, String ip_peer, String free_space, String peer_id, int len)
         {
             try
             {
-                
                 int fileNameLen;
                 String fileName;
                 byte[] b = new byte[7];
@@ -279,6 +307,7 @@ namespace Server_Application
                 if (t.Equals("OK To S"))
                 {
                     MessageBox.Show("SERVER MESSAGE: Peer Running");
+                    to_peer.Send(Encoding.UTF8.GetBytes(len.ToString()));
                     to_peer.Send(buffer);
                     to_peer.Receive(b);
                     fileNameLen = BitConverter.ToInt32(buffer, 0);
@@ -300,7 +329,6 @@ namespace Server_Application
                     n_free = n_free-buffer.Length;
                     cmd.Parameters.AddWithValue("@Free Space", n_free.ToString());
                     cmd.Parameters.AddWithValue("@Client Id", peer_id);
-                    client_socket.Send(Encoding.UTF8.GetBytes("Success"));
                     
                 }
                 else
@@ -319,33 +347,36 @@ namespace Server_Application
         }
         public void store(byte[] buffer, int length)
         {
-            int fileNameLen = 1;
+            int fileNameLen = 0;
             int flag = 0;
             string fileName;
             string receivedPath = null;
             String content = String.Empty;
-            int bytesRead = length;
+            int bytesRead = buffer.Length;
             if (bytesRead > 0)
             {
                 if (flag == 0)
                 {
+                    
+                    MessageBox.Show("f");
                     fileNameLen = BitConverter.ToInt32(buffer, 0);
                     fileName = Encoding.UTF8.GetString(buffer, 4, fileNameLen);
-                    receivedPath = @"F:\" + fileName;
+                    receivedPath = @"D:\" + fileName;
                     flag++;
                 }
 
                 if (flag >= 1)
                 {
-                    BinaryWriter writer = new BinaryWriter(File.Open(receivedPath, FileMode.Append));
-                    if (flag == 1)
-                    {
-                        writer.Write(buffer, 4 + fileNameLen, bytesRead - (4 + fileNameLen));
-                        flag++;
-                    }
-                    else
-                        writer.Write(buffer, 0, bytesRead);
-                    writer.Close();
+                    MessageBox.Show("SAS"+buffer.Length.ToString());
+                    byte[] data = new byte[buffer.Length - 4 - fileNameLen];
+                    MessageBox.Show("LENGTH:" + length.ToString());
+                    Array.Copy(buffer, ( 4 + fileNameLen), data, 0, (length - 4 - fileNameLen));
+                    MessageBox.Show("DATA LENGTH:"+data.Length.ToString());
+                    BinaryWriter WR = new BinaryWriter(File.OpenWrite(receivedPath));
+                    WR.Write(data);
+                    WR.Flush();
+                    WR.Close();
+
                 }
             }
         }

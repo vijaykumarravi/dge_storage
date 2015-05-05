@@ -43,12 +43,13 @@ namespace Demiguise
                     if (System.Net.Dns.GetHostEntry(myHost).AddressList[i].IsIPv6LinkLocal == false)
                     {
                         myIp = System.Net.Dns.GetHostEntry(myHost).AddressList[i].ToString();
+                        break;
                    //     MessageBox.Show(myIp);
                     }
 
                 }
 //                myIp = System.Net.Dns.GetHostEntry(myHost).AddressList[2].ToString();
-               // MessageBox.Show(myIp);
+              // MessageBox.Show("Peer"+myIp);
                 IPEndPoint ip_end = new IPEndPoint(IPAddress.Parse(myIp), 5050);
                 peer_req = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.IP);
                 peer_req.Bind(ip_end);
@@ -56,7 +57,6 @@ namespace Demiguise
                 while (true)
                 {
                     
-                    byte[] data = new byte[1000 * 500];
                     peer_req.Listen(100);
                     peer_handle = peer_req.Accept();
                     byte[] msg = new byte[7];
@@ -66,7 +66,18 @@ namespace Demiguise
                     {
                         MessageBox.Show("peer_running");
                         peer_handle.Send(Encoding.UTF8.GetBytes("OK To Send"));
-                        recv = peer_handle.Receive(data);
+                        int totalbytesread = 0;
+                        byte[] b = new byte[1000];
+                        peer_handle.Receive(b);
+                        byte[] data = new byte[int.Parse(Encoding.UTF8.GetString(b))];
+                        byte[] temp = new byte[8192];
+                        while (totalbytesread < int.Parse(Encoding.UTF8.GetString(b)))
+                        {
+                            int recv_len = peer_handle.Receive(temp);
+                            Buffer.BlockCopy(temp, 0, data, totalbytesread, recv_len);
+                            totalbytesread += recv_len;
+
+                        }
                         Read(data, recv);
 
                         String rep = "OK";
@@ -92,6 +103,7 @@ namespace Demiguise
                         filename.CopyTo(send_data, 4);
                         fileData.CopyTo(send_data, 4 + fName.Length);
                         MessageBox.Show(fName);
+                        peer_handle.Send(Encoding.UTF8.GetBytes(send_data.Length.ToString()));
                         peer_handle.Send(send_data);
                         MessageBox.Show("Data Sent");
 
@@ -147,7 +159,7 @@ namespace Demiguise
                     MessageBox.Show("f");
                     fileNameLen = BitConverter.ToInt32(buff, 0);
                     fileName = Encoding.UTF8.GetString(buff, 4, fileNameLen);
-                    receivedPath = @"C:\Users\Vijay Kumar Ravi\Documents\GitHub\Stored Files\" + fileName;
+                    receivedPath = @"C:\Users\Vijay Kumar Ravi\Documents\GitHub\Peer Files\" + fileName;
                     flag++;
                 }
 
