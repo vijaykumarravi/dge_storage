@@ -67,9 +67,10 @@ namespace WindowsFormsApplication1
         
     public void Read(byte[] buff, int recv_len)
         {
+            flag = 0;
             MessageBox.Show("Client: Retriving File");
             int fileNameLen = 1;
-            string fileName;
+            string fileName = null;
             string receivedPath = null;
             String content = String.Empty;
             int bytesRead = recv_len;
@@ -85,6 +86,7 @@ namespace WindowsFormsApplication1
 
                 if (flag >= 1)
                 {
+
                     BinaryWriter writer = new BinaryWriter(File.Open(receivedPath, FileMode.Append));
                     if (flag == 1)
                     {
@@ -93,6 +95,7 @@ namespace WindowsFormsApplication1
                     }
                     else
                         writer.Write(buff, 0, bytesRead);
+                    writer.Flush();
                     writer.Close();
                 }
             }
@@ -297,23 +300,33 @@ namespace WindowsFormsApplication1
                 int recv_le = client_sock.Receive(msg);
                 String repl = Encoding.UTF8.GetString(msg, 0, recv_le);
                 
-                byte[] b = new byte[100];
+                byte[] b = new byte[1000];
                 if (repl.Equals("Waitttt"))
                 {
-                    MessageBox.Show("File being retrived");
+                    MessageBox.Show("Client Message: File being retrived");
                     int totalbytesread = 0;
                     client_sock.Receive(b);
-                    byte[] data = new byte[int.Parse(Encoding.UTF8.GetString(b))];
-                    byte[] temp = new byte[8192];
-                    while (totalbytesread < int.Parse(Encoding.UTF8.GetString(b)))
+                    try
                     {
-                        int recv_len = client_sock.Receive(temp);
-                        Buffer.BlockCopy(temp, 0, data, totalbytesread, recv_len);
-                        totalbytesread += recv_len;
+                        int data_len = int.Parse(Encoding.UTF8.GetString(b));
+                        byte[] data = new byte[data_len];
+                        byte[] temp = new byte[8192];
+                        while (totalbytesread < int.Parse(Encoding.UTF8.GetString(b)))
+                        {
+                            int recv_len = client_sock.Receive(temp);
+                            Buffer.BlockCopy(temp, 0, data, totalbytesread, recv_len);
+                            totalbytesread += recv_len;
 
-                    }
+                        }
+                    
                     MessageBox.Show("Read Successful");
-                    Read(data, totalbytesread);
+                    Read(data, data_len);
+                    }
+                    catch (Exception ae)
+                    {
+                        MessageBox.Show(ae.Message);
+                        MessageBox.Show(ae.ToString());
+                    }
                 }
                 else
                 {

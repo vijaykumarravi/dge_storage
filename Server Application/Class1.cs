@@ -213,7 +213,7 @@ namespace Server_Application
             peer.Receive(req_msg);
             if (Encoding.UTF8.GetString(req_msg).Equals("File Na"))
             {
-                byte[] b = new byte[100];
+                byte[] b = new byte[1000];
                 byte[] msg = Encoding.UTF8.GetBytes(fName);
                 int fn_len = msg.Length;
                 peer.Send(Encoding.UTF8.GetBytes(fn_len.ToString()));
@@ -222,15 +222,17 @@ namespace Server_Application
                 byte[] clientData = new byte[int.Parse(Encoding.UTF8.GetString(b))];
                 int totalbytesread = 0;
                 byte[] temp = new byte[8192];
+                MessageBox.Show("Server Message To Read: " + int.Parse(Encoding.UTF8.GetString(b)));
                 while (totalbytesread < int.Parse(Encoding.UTF8.GetString(b)))
                 {
-                    int recv_len = client_socket.Receive(temp);
+                    int recv_len = peer.Receive(temp);
                     Buffer.BlockCopy(temp, 0, clientData, totalbytesread, recv_len);
                     totalbytesread += recv_len;
 
                 }
                 client_socket.Send(b);
                 client_socket.Send(clientData);
+                MessageBox.Show("SERVER MESSAGE: Sent to client");
             }
         }
         public void receiveFile(Socket client_socket)
@@ -278,9 +280,9 @@ namespace Server_Application
 
                     }
                 }
-                MessageBox.Show(ip_peer);
+                MessageBox.Show("Sending to peer with IP:" +ip_peer);
                forward(clientData, ip_peer, free_sapce, peer_id,len);
-                store(clientData, totalbytesread);
+                //store(clientData, totalbytesread);
                 cnn.Close();
             }
             catch (Exception ae)

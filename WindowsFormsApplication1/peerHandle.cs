@@ -78,7 +78,7 @@ namespace Demiguise
                             totalbytesread += recv_len;
 
                         }
-                        Read(data, recv);
+                        Read(data, totalbytesread);
 
                         String rep = "OK";
                         byte[] rep_msg = Encoding.UTF8.GetBytes(rep);
